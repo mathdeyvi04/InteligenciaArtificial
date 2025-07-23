@@ -1,42 +1,36 @@
-#include <SDL.h>
-#include <iostream>
-#include <cstdio>
 
 // Instalações de Código
 #include "src/Dinossauro.h"
+#include "src/Graficos.h"
 
 
 
 int main() {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        std::cerr << "Erro ao iniciar SDL: " << SDL_GetError() << std::endl;
-        return 1;
+    
+    graphicx::Aplicacao aplication = graphicx::init_aplication();
+
+    while(
+        aplication.is_running
+    ){
+
+        graphicx::get_keys(aplication);
+
+        graphicx::renderizar(aplication, 1);
+
+
+        graphicx::sync_fps(aplication);
+
+        graphicx::renderizar(aplication, -1);
     }
 
-    SDL_Window* window = SDL_CreateWindow(
-        "Simulação da Rede Neural",
-        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
-        640, 480, 
-        0
-    );
-
-
-    
-
-    SDL_Delay(1000); // Janela aberta por 3s
 
 
 
 
 
 
+    graphicx::destroy_aplication(aplication);
 
-
-
-
-
-    SDL_DestroyWindow(window);
-    SDL_Quit();
     return 0;
 }
 
