@@ -6,7 +6,6 @@
 // Os obstáculos deverão ter comprimento constante, mas suas alturas e posições serão aleatórias.
 #define WIDTH_OBS 30
 #define MAX_HEIGTH_OBs 10
-#define QUANT_DE_OBJ 1
 
 // Informações do sprite
 #define WIDTH_PX WIDTH
@@ -17,6 +16,7 @@ class Ambiente {
 	Descrição:
 		Classe responsável por manutenir todo o ambiente e seus respectivos objetos.
 	*/
+	friend class Objeto;
 public:
 
 	class Objeto {
@@ -27,7 +27,7 @@ public:
 			0 - chão
 			1 - nuvem
 			2 - obstáculo
-		-> cinematica: posx, posy, velx, vely, ay.
+		-> pos: posx, posy
 		-> cortes_de_sprites: conj de quadruplas que representam as sprites.
 			A essa altura, já saberemos quem é quem.
 		*/
@@ -37,7 +37,7 @@ public:
 
 		// Vamos definir atributos padrões de cada objeto.
 
-		float cinematica[5] = {0, 0, 0, 0, - 1.5};
+		float pos[2] = {0, 0};
 		int id = 0;
 		int index_de_sprite = 0;
 		int *cortes_de_sprites = nullptr;
@@ -47,23 +47,35 @@ public:
 
 		Objeto(
 			int& index,
-			int *args
+			int *args,
+			int& index_de_quant
 		){
 
 			if(
 				// Temos o chão
-				index == 0 || index == 1
+				index_de_quant == 0 || index_de_quant == 1
 			){
 
 				id = 0; 
 				index_de_sprite = 0;
 				cortes_de_sprites = &args[index + 1];
 
-				cinematica[0] = 0 + index * WIDTH_PX;
-				cinematica[1] = 750;
+				pos[0] = 0 + index_de_quant * (WIDTH_PX - 2);
+				pos[1] = 750;
 				ratio_img[0]  = WIDTH_PX - 1;
 				ratio_img[1]  = 25;
 			}
+		}
+
+		void
+		mover_se( int vel ){
+			/*
+			Aplicaremos o movimento a cada um.
+			*/
+
+			if( (pos[0] + ratio_img[0]) < 0 ) { pos[0] = WIDTH; }
+
+			pos[0] -= vel * graphicx::fps_controller.interv * 0.001;
 		}
 	};
 
@@ -73,10 +85,13 @@ public:
 	// 2 -> nuvem 2
 	// 3 -> nuvem 3
 	// . -> obstáculos
-	Objeto conj_de_objetos[QUANT_DE_OBJ];
+	std::vector<Objeto> conj_de_objetos;
+	int quant_populada = 0;
 
 	SDL_Texture *textura_geral;
 	graphicx::Aplicacao aplication;
+
+	int VEL_AMBIENTE = 100;
 
 	int *respectivos_cortes = nullptr;
 
@@ -96,7 +111,7 @@ public:
 		aplication = aplication_;
 
 		// Devemos realizar os respectivos cortes e posicionamentos iniciais.
-		_carregar_cortes_e_posicao_inicial();
+		_carregar_cortes();
 		_carregar_ambiente();
 
 		SDL_FreeSurface(surface); // Liberamos pois não precisaremos mais.
@@ -110,7 +125,7 @@ public:
 			popular a lista de obstáculos.
 
 			-> respectivos_cortes[]:
-				quantidade_de_quadruplas_que_representam_sprites, sprites..., pos_inicial
+				quantidade_de_quadruplas_que_representam_sprites, sprites...
 
 			A informação de quantas sprites existem é útil aqui para automatizarmos a leitura.
 		*/
@@ -120,23 +135,29 @@ public:
 			respectivos_cortes[index] != 0
 		){
 
-			conj_de_objetos[index] = Objeto(
-				index,
-				respectivos_cortes
+			conj_de_objetos.push_back(
+				Objeto(
+					index,
+					respectivos_cortes,
+					quant_populada
+				)
 			);
 
-			index += 4 * (respectivos_cortes[index] + 1) + 1;
+			quant_populada++;
+			index += 4 * respectivos_cortes[index] + 1;
 		}
 	}
 
 	void
-	_carregar_cortes_e_posicao_inicial(){
+	_carregar_cortes(){
 		/*
 		Infelizmente, vamos ter que aceitar o tamanho da janela.
 		Construiremos um arquivo de texto com os dados.
 		*/
 
-		FILE *arquivo = fopen("src/cortes_de_sprites_e_posicoes.txt", "r");
+		FILE *arquivo = fopen("src/cortes_de_sprites.txt", "r");
+		if(!arquivo) { fprintf(stderr, "Erro na Leitura do Arquivo.txt de Sprites."); return; }
+
 
 		int valor = 0;
 		int count = 0;
@@ -164,9 +185,13 @@ public:
 
 		for(
 			int i = 0;
-				i < QUANT_DE_OBJ;
+				i < quant_populada;
 				i++
 		){
+			//fprintf(stderr, "\nApresentarei elemento %d", i);
+
+			conj_de_objetos[i].mover_se(VEL_AMBIENTE);			
+			
 			SDL_Rect corte{
 				conj_de_objetos[i].cortes_de_sprites[0 + 4 * conj_de_objetos[i].index_de_sprite],
 				conj_de_objetos[i].cortes_de_sprites[1 + 4 * conj_de_objetos[i].index_de_sprite],
@@ -175,8 +200,8 @@ public:
 			};
 
 			SDL_Rect pos{
-				(int)conj_de_objetos[i].cinematica[0],
-				(int)conj_de_objetos[i].cinematica[1],
+				(int)conj_de_objetos[i].pos[0],
+				(int)conj_de_objetos[i].pos[1],
 				conj_de_objetos[i].ratio_img[0],
 				conj_de_objetos[i].ratio_img[1]
 			};
