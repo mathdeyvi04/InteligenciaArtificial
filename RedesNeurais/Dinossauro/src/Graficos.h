@@ -31,6 +31,7 @@ namespace graphicx {
 		SDL_Surface *surf;
 		SDL_Texture *text;
 		SDL_Rect rect;
+
 	};
 
 	FPSController fps_controller{
@@ -46,6 +47,8 @@ namespace graphicx {
 	};
 
 	SDL_Event evento;
+
+	int overboost = 1;
 
 	Aplicacao
 	init_aplication(){
@@ -96,7 +99,7 @@ namespace graphicx {
 	    if( aplication.window   ) { SDL_DestroyWindow(aplication.window);     }
 
 	    TTF_Quit();
-	    //IMG_Quit();
+	    IMG_Quit();
 	    SDL_Quit();
 	}
 
@@ -113,11 +116,22 @@ namespace graphicx {
 	            if (evento.key.keysym.sym == SDLK_UP && fps_controller.FPS < 95) {
 	                fps_controller.FPS += 5;
 					fps_controller.interv = 1000 / fps_controller.FPS;
+					continue;
 	            }
 	            if (evento.key.keysym.sym == SDLK_DOWN && fps_controller.FPS > 5) {
 	                fps_controller.FPS -= 5;
 					fps_controller.interv = 1000 / fps_controller.FPS;
+					continue;
 	            }
+	            if (evento.key.keysym.sym == SDLK_RIGHT && overboost < 5) {
+	               	overboost += 1;
+	               	continue;
+	            }
+	            if (evento.key.keysym.sym == SDLK_LEFT && overboost > 1) {
+	               	overboost -= 1;
+	               	continue;
+	            }
+
 	        }
 	    }
 	}
@@ -172,6 +186,8 @@ namespace graphicx {
 		fps_controller.ultimo_frame = SDL_GetTicks();
 	}
 
+	double
+	delta_time(){ return fps_controller.interv * 0.001 * overboost; }
 };
 
 

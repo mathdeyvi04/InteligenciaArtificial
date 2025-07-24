@@ -25,8 +25,9 @@ public:
 		
 		-> id: representando o que ele é.
 			0 - chão
-			1 - nuvem
-			2 - obstáculo
+			1 - obstáculo fixo
+			2 - obstáculo móvel
+			3 - dinossauro
 		-> pos: posx, posy
 		-> cortes_de_sprites: conj de quadruplas que representam as sprites.
 			A essa altura, já saberemos quem é quem.
@@ -46,24 +47,49 @@ public:
 		Objeto() = default;
 
 		Objeto(
-			int& index,
-			int *args,
-			int& index_de_quant
+			// Estes imediatamente são para armazenarmos os ponteiros.
+			int *conj_de_sprites,
+			int index,
+			int id_
 		){
 
-			if(
-				// Temos o chão
-				index_de_quant == 0 || index_de_quant == 1
-			){
+			cortes_de_sprites = conj_de_sprites;
 
-				id = 0; 
-				index_de_sprite = 0;
-				cortes_de_sprites = &args[index + 1];
+			switch(id_){
 
-				pos[0] = 0 + index_de_quant * (WIDTH_PX - 2);
-				pos[1] = 750;
-				ratio_img[0]  = WIDTH_PX - 1;
-				ratio_img[1]  = 25;
+				case 0:
+					// Chão
+
+					id = 0; 
+					index_de_sprite = 0;
+
+					pos[0] = 0 + index * (WIDTH_PX - 2);
+					pos[1] = 750;
+					ratio_img[0]  = WIDTH_PX - 1;
+					ratio_img[1]  = 25;
+
+					break;
+
+				case 1:
+					// Obstáculo Fixo
+
+					id = 1;
+					index_de_sprite = rand() % 9; 
+
+					pos[0] = 1600 + (index - 2) * 200;
+					pos[1] = 710;
+					ratio_img[0]  = 50;
+					ratio_img[1]  = 70;
+
+					break;
+
+				case 2:
+					// Obstáculo Móvel
+
+					break;
+
+				default:
+					break;
 			}
 		}
 
@@ -75,25 +101,25 @@ public:
 
 			if( (pos[0] + ratio_img[0]) < 0 ) { pos[0] = WIDTH; }
 
-			pos[0] -= vel * graphicx::fps_controller.interv * 0.001;
+			pos[0] -= vel * graphicx::delta_time();
 		}
 	};
 
 	// 0 -> chão 1
 	// 1 -> chão 2
-	// 1 -> nuvem 1
-	// 2 -> nuvem 2
-	// 3 -> nuvem 3
 	// . -> obstáculos
 	std::vector<Objeto> conj_de_objetos;
-	int quant_populada = 0;
 
 	SDL_Texture *textura_geral;
 	graphicx::Aplicacao aplication;
 
-	int VEL_AMBIENTE = 100;
+	int VEL_AMBIENTE = 150;
 
 	int *respectivos_cortes = nullptr;
+	int conj_de_sprites[4] = {0};
+
+	int QUANT_DE_OBJ = 2 + 5;
+	int quant_populada = 0;
 
 	Ambiente(
 		graphicx::Aplicacao& aplication_
@@ -112,52 +138,68 @@ public:
 
 		// Devemos realizar os respectivos cortes e posicionamentos iniciais.
 		_carregar_cortes();
-		_carregar_ambiente();
+		_popular_ambiente();
 
 		SDL_FreeSurface(surface); // Liberamos pois não precisaremos mais.
 	};
 
 	void 
-	_carregar_ambiente(){
+	_popular_ambiente(){
 		/*
 		Descrição:
-			Responsável por realizar os cortes dos sprites e
-			popular a lista de obstáculos.
-
-			-> respectivos_cortes[]:
-				quantidade_de_quadruplas_que_representam_sprites, sprites...
-
-			A informação de quantas sprites existem é útil aqui para automatizarmos a leitura.
+			Responsável por popular a lista de obstáculos.
 		*/
 
 		int index = 0;
 		while(
-			respectivos_cortes[index] != 0
+			index < QUANT_DE_OBJ
 		){
 
-			conj_de_objetos.push_back(
-				Objeto(
-					index,
-					respectivos_cortes,
-					quant_populada
-				)
-			);
+			if(
+				index == 0 || index == 1
+			){
 
-			quant_populada++;
-			index += 4 * respectivos_cortes[index] + 1;
+				conj_de_objetos.push_back(
+					Objeto(
+						&respectivos_cortes[conj_de_sprites[0]],
+						index,
+						0
+					)
+				);
+
+				quant_populada++;
+			}
+			else{
+
+				// Lógica para móveis e fixos.
+				// Proporção de 5 fixos para cada móvel. Depois podemos adicionar aleatoriedade.
+				bool is_fixed = 1;
+
+				conj_de_objetos.push_back(
+					Objeto(
+						&respectivos_cortes[conj_de_sprites[(is_fixed) ? 1 : 2]],
+						index,
+						(is_fixed) ? 1 : 2
+					)
+				);
+
+				quant_populada++;
+			}
+
+			index++;
 		}
+
 	}
 
 	void
 	_carregar_cortes(){
 		/*
-		Infelizmente, vamos ter que aceitar o tamanho da janela.
-		Construiremos um arquivo de texto com os dados.
+		Descrição:
+			Obteremos os cortes realizados.
 		*/
 
 		FILE *arquivo = fopen("src/cortes_de_sprites.txt", "r");
 		if(!arquivo) { fprintf(stderr, "Erro na Leitura do Arquivo.txt de Sprites."); return; }
-
 
 		int valor = 0;
 		int count = 0;
@@ -174,6 +216,20 @@ public:
 		}
 
 		fclose(arquivo);
+
+
+		valor = 0;
+		count = 0;
+		while(
+			respectivos_cortes[count] != 0
+		){
+
+			// Guardaremos o índice que o sprite começa
+			conj_de_sprites[valor] = count + 1;
+
+			valor++;
+			count += 4 * respectivos_cortes[count] + 1;
+		}
 	}
 
 	void 
@@ -188,10 +244,12 @@ public:
 				i < quant_populada;
 				i++
 		){
-			//fprintf(stderr, "\nApresentarei elemento %d", i);
 
-			conj_de_objetos[i].mover_se(VEL_AMBIENTE);			
-			
+			conj_de_objetos[i].mover_se(VEL_AMBIENTE);		
+
+			// Devemos verificar se a imagem é vísivel. Caso não, não devemos desenhá-la.
+			if( conj_de_objetos[i].pos[0] > WIDTH ){ continue; }
+
 			SDL_Rect corte{
 				conj_de_objetos[i].cortes_de_sprites[0 + 4 * conj_de_objetos[i].index_de_sprite],
 				conj_de_objetos[i].cortes_de_sprites[1 + 4 * conj_de_objetos[i].index_de_sprite],
@@ -208,7 +266,6 @@ public:
 
 			SDL_RenderCopy(aplication.renderer, textura_geral, &corte, &pos);
 		}
-
 	}
 
 	void

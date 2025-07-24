@@ -11,6 +11,8 @@ Thread Principal:
 
 
 int main() {
+
+    srand(time(NULL));
     
     graphicx::Aplicacao aplication = graphicx::init_aplication();
 
