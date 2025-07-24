@@ -1,13 +1,20 @@
 
 // Instalações de Código
-#include "src/Dinossauro.h"
-#include "src/Graficos.h"
+#include "src/Ambiente.h"
 
+/*
+Thread Principal:
+    Responsável por iniciar demais threads e cuidar dos objetos do ambiente.
+
+
+*/
 
 
 int main() {
     
     graphicx::Aplicacao aplication = graphicx::init_aplication();
+
+    Ambiente ambiente(aplication);
 
     while(
         aplication.is_running
@@ -15,12 +22,19 @@ int main() {
 
         graphicx::get_keys(aplication);
 
-        graphicx::renderizar(aplication, 1);
+        SDL_SetRenderDrawColor(aplication.renderer, 255, 255, 255, 255);
+        SDL_RenderClear(aplication.renderer);
+
+
+
+        ambiente.carregar_ambiente();
+
+
+
 
 
         graphicx::sync_fps(aplication);
-
-        graphicx::renderizar(aplication, -1);
+        SDL_RenderPresent(aplication.renderer);
     }
 
 
@@ -28,7 +42,7 @@ int main() {
 
 
 
-
+    ambiente.destroy();
     graphicx::destroy_aplication(aplication);
 
     return 0;
