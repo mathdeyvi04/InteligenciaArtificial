@@ -26,8 +26,7 @@ int main() {
         SDL_RenderClear(aplication.renderer);
 
 
-
-        ambiente.carregar_ambiente();
+        ambiente.apresentar_ambiente();
 
 
 

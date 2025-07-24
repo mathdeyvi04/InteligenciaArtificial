@@ -7,6 +7,9 @@
 #include <string>
 #include <iostream>
 
+#include <cstdio>
+#include <cstdlib>
+
 
 
 
