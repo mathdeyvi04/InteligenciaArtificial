@@ -43,6 +43,7 @@ public:
 		int index_de_sprite = 0;
 		int *cortes_de_sprites = nullptr;
 		int ratio_img[2] = {0};
+		int caso_seja_movel = 0;
 
 		Objeto() = default;
 
@@ -86,6 +87,14 @@ public:
 				case 2:
 					// Obstáculo Móvel
 
+					id = 2;
+					index_de_sprite = 1; 
+
+					pos[0] = 1600 + (index - 2) * 400;
+					pos[1] = 675;
+					ratio_img[0]  = 50;
+					ratio_img[1]  = 70;
+
 					break;
 
 				default:
@@ -100,6 +109,19 @@ public:
 			*/
 
 			if( (pos[0] + ratio_img[0]) < 0 ) { pos[0] = WIDTH; }
+
+			// Animação do obstáculo móvel.
+			if(
+				id == 2 && caso_seja_movel == 7
+			){
+
+				index_de_sprite = !index_de_sprite;
+				caso_seja_movel = 0;
+			}
+			else{
+
+				caso_seja_movel++;
+			}
 
 			pos[0] -= vel * graphicx::delta_time();
 		}
@@ -118,7 +140,7 @@ public:
 	int *respectivos_cortes = nullptr;
 	int conj_de_sprites[4] = {0};
 
-	int QUANT_DE_OBJ = 2 + 5;
+	int QUANT_DE_OBJ = 2 + 10;
 	int quant_populada = 0;
 
 	Ambiente(
@@ -173,7 +195,7 @@ public:
 
 				// Lógica para móveis e fixos.
 				// Proporção de 5 fixos para cada móvel. Depois podemos adicionar aleatoriedade.
-				bool is_fixed = 1;
+				bool is_fixed = (index - 2) % 5;
 
 				conj_de_objetos.push_back(
 					Objeto(
@@ -188,7 +210,6 @@ public:
 
 			index++;
 		}
-
 	}
 
 	void
