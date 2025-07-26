@@ -7,7 +7,7 @@ SDL_CFLAGS = -I/usr/include/SDL2 -D_REENTRANT
 SDL_LIBS   = -lSDL2 -lSDL2_image -lSDL2_ttf
 
 # Compilador e flags
-CXXFLAGS = g++ -Wall -std=c++17 $(SDL_CFLAGS)
+CXXFLAGS = g++ -Wall -std=c++20 $(SDL_CFLAGS)
 LDFLAGS  = $(SDL_LIBS)
 
 ################################################################

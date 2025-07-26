@@ -5,13 +5,14 @@
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <string>
-#include <iostream>
 
+#include <iostream>
 #include <cstdio>
 #include <cstdlib>
+
 #include <vector>
-
-
+#include <thread>
+#include <barrier>
 
 
 

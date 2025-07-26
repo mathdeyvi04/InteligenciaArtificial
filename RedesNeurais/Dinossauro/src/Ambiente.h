@@ -3,6 +3,9 @@
 
 #include "Graficos.h"
 
+#define QUANT_DINOS 1
+std::barrier sync_barrier(QUANT_DINOS + 1); // Thread Principal
+
 // Informações do sprite
 #define WIDTH_PX WIDTH
 #define HEIGTH_PX 87
@@ -40,6 +43,7 @@ public:
 		int *cortes_de_sprites = nullptr;
 		int ratio_img[2] = {0};
 		int caso_seja_movel = 0;
+		float vely = 0; 
 
 		Objeto() = default;
 
@@ -84,7 +88,7 @@ public:
 					// Obstáculo Móvel
 
 					id = 2;
-					index_de_sprite = 1; 
+					index_de_sprite = 0; 
 
 					pos[0] = 1600 + index * 400;
 					pos[1] = 675;
@@ -93,31 +97,49 @@ public:
 
 					break;
 
+				case 3:
+					// Dinossauro
+
+					id = 3;
+					index_de_sprite = 0;
+
+					pos[0] = 10;
+					pos[1] = 750;
+					ratio_img[0]  = 50;
+					ratio_img[1]  = 70;
+
 				default:
 					break;
 			}
 		}
 
 		void
-		mover_se( int vel, Objeto* obj_mais_distante_ ){
+		mover_se( int vel_do_ambiente, Objeto* obj_mais_distante_ ){
 			/*
 			Aplicaremos o movimento a cada um.
 			*/
 
-			if( (pos[0] + ratio_img[0]) < 0 ) { Ambiente::algoritmo_de_reciclagem(this, obj_mais_distante_); }
-
-			// Animação do obstáculo móvel.
 			if(
-				id == 2
+				id != 3
 			){
 
-				if( caso_seja_movel == 7 ) { index_de_sprite = !index_de_sprite; caso_seja_movel = 0; } else{ caso_seja_movel++; }
+				if( (pos[0] + ratio_img[0]) < 0 ) { Ambiente::algoritmo_de_reciclagem(this, obj_mais_distante_); }
 
-				// Afinal, ele está voando
-				pos[0] -= 0.3 * vel * graphicx::delta_time();
+				// Animação do obstáculo móvel.
+				if(
+					id == 2
+				){
+
+					if( caso_seja_movel == 7 ) { index_de_sprite = !index_de_sprite; caso_seja_movel = 0; } else{ caso_seja_movel++; }
+				}
+
+				pos[0] -= vel_do_ambiente * graphicx::delta_time();
+
+				return;
 			}
 
-			pos[0] -= vel * graphicx::delta_time();
+			// Então, temos apenas dinossauro.
+			// Em x, ele não se movimenta.
 		}
 	};
 
@@ -283,10 +305,13 @@ public:
 			Há dois loops, um para movê-los.
 		*/
 
+		// Ambiente deve esperar que dino tome decisão e aplique-a.
+		sync_barrier.arrive_and_wait();
+
 		int todos_ja_foram_movidos = 0;
 		for(
 			int i = 0;
-				i < QUANT_DE_OBJ;
+				i < (int)conj_de_objetos.size();
 				i++
 		){
 
@@ -302,8 +327,9 @@ public:
 			}
 
 			// Agora podemos decidir que está mais distante.
-			if( i > 1 && conj_de_objetos[i].pos[0] > obj_mais_distante->pos[0] ) { obj_mais_distante = &conj_de_objetos[i]; }
+			if( conj_de_objetos[i].id != 3 && conj_de_objetos[i].id != 0 && conj_de_objetos[i].pos[0] > obj_mais_distante->pos[0] ) { obj_mais_distante = &conj_de_objetos[i]; }
 
+			if( conj_de_objetos[i].id == 3 ){ fprintf(stderr, "Vou colocar um dinossauro."); }
 
 			// Devemos verificar se a imagem é vísivel. Caso não, não devemos desenhá-la.
 			if( conj_de_objetos[i].pos[0] > WIDTH ){ continue; }
@@ -324,6 +350,9 @@ public:
 
 			SDL_RenderCopy(aplication.renderer, textura_geral, &corte, &pos);
 		}
+
+		// Ambiente libera dinossauro.
+		sync_barrier.arrive_and_wait();
 	}
 
 	static void
@@ -342,7 +371,8 @@ public:
 		// O chão deve só seguir 
 		if( !obj->id ) { obj->pos[0] = WIDTH; return; }  
 
-		double distancia_a_ser_colocado_do_ultimo = 400.0 + (rand() % 100) * 2;
+		double distancia_a_ser_colocado_do_ultimo = 200.0 + (rand() % 150) * 2;
+		fprintf(stderr, "\nAlocação: %.0lf", distancia_a_ser_colocado_do_ultimo);
 
 		obj->pos[0] = obj_mais_distante_->pos[0] + distancia_a_ser_colocado_do_ultimo;
 	}
