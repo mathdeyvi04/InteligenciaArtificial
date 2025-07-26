@@ -24,31 +24,43 @@ namespace graphicx {
 	struct FPSController {
 		int FPS;
 		double interv;
-		double ultimo_frame;
 
+		double ultimo_frame;
 		int ultimo_fps_printado;
 		char fps_texto[8];
-		SDL_Surface *surf;
-		SDL_Texture *text;
-		SDL_Rect rect;
+		SDL_Surface *surf_fps;
+		SDL_Texture *text_fps;
+		SDL_Rect rect_fps;
+
+		int overboost;
+		int ultimo_overboost_printado;
+		char overboost_texto[13];
+		SDL_Surface *surf_overboost;
+		SDL_Texture *text_overboost;
+		SDL_Rect rect_overboost;
 
 	};
 
 	FPSController fps_controller{
 		30,
 		1000 / 30,
-		0,
 		
+		0,
 		0,
 		{0},
 		nullptr,
 		nullptr,
-		{0, 0, 0, 0}
+		{0, 0, 0, 0},
+
+		1,
+		0,
+		{0},
+		nullptr,
+		nullptr,
+		{0, 0, 0, 0},
 	};
 
 	SDL_Event evento;
-
-	int overboost = 1;
 
 	Aplicacao
 	init_aplication(){
@@ -123,12 +135,12 @@ namespace graphicx {
 					fps_controller.interv = 1000 / fps_controller.FPS;
 					continue;
 	            }
-	            if (evento.key.keysym.sym == SDLK_RIGHT && overboost < 5) {
-	               	overboost += 1;
+	            if (evento.key.keysym.sym == SDLK_RIGHT && fps_controller.overboost < 5) {
+	               	fps_controller.overboost += 1;
 	               	continue;
 	            }
-	            if (evento.key.keysym.sym == SDLK_LEFT && overboost > 1) {
-	               	overboost -= 1;
+	            if (evento.key.keysym.sym == SDLK_LEFT && fps_controller.overboost > 1) {
+	               	fps_controller.overboost -= 1;
 	               	continue;
 	            }
 
@@ -143,7 +155,7 @@ namespace graphicx {
 		/*
 		Descrição:
 			Responsável por sincronizar a velocidade da aplicação e
-			apresentar a informação de FPS na tela.
+			apresentar a informação de FPS na tela e de OverBoost.
 
 			Deve estar necessariamente ao final do loop principal.
 		*/
@@ -157,25 +169,51 @@ namespace graphicx {
 
 			snprintf(fps_controller.fps_texto, sizeof(fps_controller.fps_texto), "FPS: %d", fps_controller.FPS);
 
-			if( fps_controller.surf ) { SDL_FreeSurface(fps_controller.surf);    }
-			if( fps_controller.text ) { SDL_DestroyTexture(fps_controller.text); }
+			if( fps_controller.surf_fps ) { SDL_FreeSurface(fps_controller.surf_fps);    }
+			if( fps_controller.text_fps ) { SDL_DestroyTexture(fps_controller.text_fps); }
 
-			fps_controller.surf = TTF_RenderText_Blended(aplication.font, fps_controller.fps_texto, {0, 0, 0});
-			if(!fps_controller.surf) { fprintf(stderr, "Erro ao renderizar texto: %s\n", TTF_GetError()); }
+			fps_controller.surf_fps = TTF_RenderText_Blended(aplication.font, fps_controller.fps_texto, {0, 0, 0});
+			if(!fps_controller.surf_fps) { fprintf(stderr, "Erro ao renderizar texto: %s\n", TTF_GetError()); }
 
-			fps_controller.text = SDL_CreateTextureFromSurface(aplication.renderer, fps_controller.surf);
+			fps_controller.text_fps = SDL_CreateTextureFromSurface(aplication.renderer, fps_controller.surf_fps);
 
-			fps_controller.rect = {
-				WIDTH - fps_controller.surf->w - 10,
-				HEIGTH - fps_controller.surf->h - 10,
-				fps_controller.surf->w,
-				fps_controller.surf->h
+			fps_controller.rect_fps = {
+				WIDTH - fps_controller.surf_fps->w - 10,
+				HEIGTH - fps_controller.surf_fps->h - 10,
+				fps_controller.surf_fps->w,
+				fps_controller.surf_fps->h
 			};
 
 			fps_controller.ultimo_fps_printado = fps_controller.FPS;
 		}
 
-		SDL_RenderCopy(aplication.renderer, fps_controller.text, nullptr, &fps_controller.rect);
+		SDL_RenderCopy(aplication.renderer, fps_controller.text_fps, nullptr, &fps_controller.rect_fps);
+
+		if(
+			fps_controller.overboost != fps_controller.ultimo_overboost_printado
+		){
+
+			snprintf(fps_controller.overboost_texto, sizeof(fps_controller.overboost_texto), "OverBoost: %d", fps_controller.overboost);
+
+			if( fps_controller.surf_overboost ) { SDL_FreeSurface(fps_controller.surf_overboost);    }
+			if( fps_controller.text_overboost ) { SDL_DestroyTexture(fps_controller.text_overboost); }
+
+			fps_controller.surf_overboost = TTF_RenderText_Blended(aplication.font, fps_controller.overboost_texto, {0, 0, 0});
+			if(!fps_controller.surf_overboost) { fprintf(stderr, "Erro ao renderizar texto: %s\n", TTF_GetError()); }
+
+			fps_controller.text_overboost = SDL_CreateTextureFromSurface(aplication.renderer, fps_controller.surf_overboost);
+
+			fps_controller.rect_overboost = {
+				WIDTH - fps_controller.surf_overboost->w - 100,
+				HEIGTH - fps_controller.surf_overboost->h - 10,
+				fps_controller.surf_overboost->w,
+				fps_controller.surf_overboost->h
+			};
+
+			fps_controller.ultimo_overboost_printado = fps_controller.overboost;
+		}
+
+		SDL_RenderCopy(aplication.renderer, fps_controller.text_overboost, nullptr, &fps_controller.rect_overboost);
 		
 		/////////////////////////////////////////////////////////////////////
 
@@ -187,7 +225,7 @@ namespace graphicx {
 	}
 
 	double
-	delta_time(){ return fps_controller.interv * 0.001 * overboost; }
+	delta_time(){ return fps_controller.interv * 0.001 * fps_controller.overboost; }
 };
 
 

@@ -3,10 +3,6 @@
 
 #include "Graficos.h"
 
-// Os obstáculos deverão ter comprimento constante, mas suas alturas e posições serão aleatórias.
-#define WIDTH_OBS 30
-#define MAX_HEIGTH_OBs 10
-
 // Informações do sprite
 #define WIDTH_PX WIDTH
 #define HEIGTH_PX 87
@@ -64,9 +60,9 @@ public:
 					id = 0; 
 					index_de_sprite = 0;
 
-					pos[0] = 0 + index * (WIDTH_PX - 2);
+					pos[0] = 0 + index * WIDTH_PX;
 					pos[1] = 750;
-					ratio_img[0]  = WIDTH_PX - 1;
+					ratio_img[0]  = WIDTH_PX;
 					ratio_img[1]  = 25;
 
 					break;
@@ -75,12 +71,12 @@ public:
 					// Obstáculo Fixo
 
 					id = 1;
-					index_de_sprite = rand() % 9; 
+					index_de_sprite = 6 + rand() % 2; 
 
-					pos[0] = 1600 + (index - 2) * 200;
-					pos[1] = 710;
+					pos[0] = 1600 + index * 400;
+					pos[1] = (index_de_sprite < 5) ? 720 : 710;
 					ratio_img[0]  = 50;
-					ratio_img[1]  = 70;
+					ratio_img[1]  = (index_de_sprite < 5) ? 70 : 60;
 
 					break;
 
@@ -90,7 +86,7 @@ public:
 					id = 2;
 					index_de_sprite = 1; 
 
-					pos[0] = 1600 + (index - 2) * 400;
+					pos[0] = 1600 + index * 400;
 					pos[1] = 675;
 					ratio_img[0]  = 50;
 					ratio_img[1]  = 70;
@@ -103,24 +99,22 @@ public:
 		}
 
 		void
-		mover_se( int vel ){
+		mover_se( int vel, Objeto* obj_mais_distante_ ){
 			/*
 			Aplicaremos o movimento a cada um.
 			*/
 
-			if( (pos[0] + ratio_img[0]) < 0 ) { pos[0] = WIDTH; }
+			if( (pos[0] + ratio_img[0]) < 0 ) { Ambiente::algoritmo_de_reciclagem(this, obj_mais_distante_); }
 
 			// Animação do obstáculo móvel.
 			if(
-				id == 2 && caso_seja_movel == 7
+				id == 2
 			){
 
-				index_de_sprite = !index_de_sprite;
-				caso_seja_movel = 0;
-			}
-			else{
+				if( caso_seja_movel == 7 ) { index_de_sprite = !index_de_sprite; caso_seja_movel = 0; } else{ caso_seja_movel++; }
 
-				caso_seja_movel++;
+				// Afinal, ele está voando
+				pos[0] -= 0.3 * vel * graphicx::delta_time();
 			}
 
 			pos[0] -= vel * graphicx::delta_time();
@@ -136,12 +130,14 @@ public:
 	graphicx::Aplicacao aplication;
 
 	int VEL_AMBIENTE = 150;
+	Objeto* obj_mais_distante = nullptr;
 
 	int *respectivos_cortes = nullptr;
 	int conj_de_sprites[4] = {0};
 
-	int QUANT_DE_OBJ = 2 + 10;
-	int quant_populada = 0;
+	int quant_de_obj_fixos = 10;
+	int quant_de_obj_moveis = 5;
+	int QUANT_DE_OBJ = 2 + quant_de_obj_fixos + quant_de_obj_moveis;
 
 	Ambiente(
 		graphicx::Aplicacao& aplication_
@@ -172,44 +168,69 @@ public:
 			Responsável por popular a lista de obstáculos.
 		*/
 
-		int index = 0;
+		// Populamos o chão
+		conj_de_objetos.push_back(
+			Objeto(
+				&respectivos_cortes[conj_de_sprites[0]],
+				0,
+				0
+			)
+		);
+
+		conj_de_objetos.push_back(
+			Objeto(
+				&respectivos_cortes[conj_de_sprites[0]],
+				1,
+				0
+			)
+		);
+
+		// Com isso, conseguimos adicionar aleatoriedade na ordem.
+
+		int idx_fixo = 0;
+		int idx_movel = 0;
 		while(
-			index < QUANT_DE_OBJ
+			idx_fixo < quant_de_obj_fixos || idx_movel < quant_de_obj_moveis
 		){
 
 			if(
-				index == 0 || index == 1
+				idx_fixo < quant_de_obj_fixos && rand() % 2
 			){
 
-				conj_de_objetos.push_back(
-					Objeto(
-						&respectivos_cortes[conj_de_sprites[0]],
-						index,
-						0
-					)
-				);
-
-				quant_populada++;
-			}
-			else{
-
-				// Lógica para móveis e fixos.
-				// Proporção de 5 fixos para cada móvel. Depois podemos adicionar aleatoriedade.
-				bool is_fixed = (index - 2) % 5;
+				// Vamos colocar fixo.
 
 				conj_de_objetos.push_back(
 					Objeto(
-						&respectivos_cortes[conj_de_sprites[(is_fixed) ? 1 : 2]],
-						index,
-						(is_fixed) ? 1 : 2
+						&respectivos_cortes[conj_de_sprites[1]],
+						idx_fixo + idx_movel,
+						1
 					)
 				);
 
-				quant_populada++;
+				idx_fixo++;
+				continue;
 			}
 
-			index++;
+			if(
+				idx_movel < quant_de_obj_moveis
+			){
+				// Vamos colocar móvel.
+				
+				conj_de_objetos.push_back(
+					Objeto(
+						&respectivos_cortes[conj_de_sprites[2]],
+						idx_movel + idx_fixo,
+						2
+					)
+				);
+
+				idx_movel++;
+			}
 		}
+
+		// Sabemos que, no início, o último elemento adicionado na lista de objetos é 
+		// o mais distante.
+		obj_mais_distante = &conj_de_objetos.back();
 	}
 
 	void
@@ -257,16 +278,32 @@ public:
 	apresentar_ambiente(){
 		/*
 		Descrição:
-			Responsável unicamente por apresentar todo o ambiente.
+			Responsável unicamente por mover os objetos e apresentá-los.
+
+			Há dois loops, um para movê-los.
 		*/
 
+		int todos_ja_foram_movidos = 0;
 		for(
 			int i = 0;
-				i < quant_populada;
+				i < QUANT_DE_OBJ;
 				i++
 		){
 
-			conj_de_objetos[i].mover_se(VEL_AMBIENTE);		
+			if(
+				!todos_ja_foram_movidos
+			){
+
+				conj_de_objetos[i].mover_se(VEL_AMBIENTE, obj_mais_distante);
+
+				if( (i + 1) == QUANT_DE_OBJ ) { i = -1; todos_ja_foram_movidos = 1; }
+
+				continue;
+			}
+
+			// Agora podemos decidir que está mais distante.
+			if( i > 1 && conj_de_objetos[i].pos[0] > obj_mais_distante->pos[0] ) { obj_mais_distante = &conj_de_objetos[i]; }
+
 
 			// Devemos verificar se a imagem é vísivel. Caso não, não devemos desenhá-la.
 			if( conj_de_objetos[i].pos[0] > WIDTH ){ continue; }
@@ -287,6 +324,27 @@ public:
 
 			SDL_RenderCopy(aplication.renderer, textura_geral, &corte, &pos);
 		}
+	}
+
+	static void
+	algoritmo_de_reciclagem(
+		Objeto* obj,
+		Objeto* obj_mais_distante_
+	){
+		/*
+		Descrição:
+			Função responsável por prover o algoritmo de reciclagem 
+			dos objetos dispostos.
+
+			Em comentários, teremos versões anteriores.
+		*/
+
+		// O chão deve só seguir 
+		if( !obj->id ) { obj->pos[0] = WIDTH; return; }  
+
+		double distancia_a_ser_colocado_do_ultimo = 400.0 + (rand() % 100) * 2;
+
+		obj->pos[0] = obj_mais_distante_->pos[0] + distancia_a_ser_colocado_do_ultimo;
 	}
 
 	void
