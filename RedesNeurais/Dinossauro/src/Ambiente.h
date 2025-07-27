@@ -40,7 +40,10 @@ public:
 		int *cortes_de_sprites = nullptr;
 		int ratio_img[2] = {0};
 		int caso_seja_movel = 0;
+		
 		float vely = 0; 
+		int esta_agachado = 0;
+		int esta_morto = 0;
 
 		Objeto() = default;
 
@@ -141,15 +144,16 @@ public:
 			// Animação do mesmo.
 			if( caso_seja_movel == 7 ){
 
-				// Então ele está em pé, ou, senão, estará agachado.
-				if( index_de_sprite == 0 || index_de_sprite == 1 ){ index_de_sprite = 1 - index_de_sprite; } else { index_de_sprite = 5 - index_de_sprite; }
+				if( !esta_agachado ){ index_de_sprite = 1 - index_de_sprite; } else { index_de_sprite = 5 - index_de_sprite; }
 
 				caso_seja_movel = 0;				
 			}
 			else{
+
 				caso_seja_movel++;
 			}
 
+			// Se estiver pulando, devemos forçar uma única sprite
 			if(
 				pos[1] <= 705
 			){
@@ -160,6 +164,7 @@ public:
 			}
 			else{
 
+				// Caso não estejamos pulando
 				pos[1] = 705;
 				vely = 0;
 			}
@@ -170,12 +175,14 @@ public:
 	// 1 -> chão 2
 	// . -> obstáculos
 	std::vector<Objeto> conj_de_objetos;
+	int quantidade_de_dinos_vivos = QUANT_DINOS;
 
 	SDL_Texture *textura_geral;
 	graphicx::Aplicacao* aplication = nullptr;
 
 	int VEL_AMBIENTE = 150;
 	Objeto* obj_mais_distante = nullptr;
+	Objeto* obj_mais_proximo  = nullptr;
 
 	int *respectivos_cortes = nullptr;
 	int conj_de_sprites[4] = {0};
@@ -275,6 +282,7 @@ public:
 
 		// Sabemos que, no início, o último elemento adicionado na lista de objetos é 
 		// o mais distante.
+		obj_mais_proximo  = &conj_de_objetos[2]; // Pegar o imediatamente após o chão 
 		obj_mais_distante = &conj_de_objetos.back();
 	}
 
@@ -351,6 +359,7 @@ public:
 
 			// Agora podemos decidir que está mais distante.
 			if( conj_de_objetos[i].id != 3 && conj_de_objetos[i].id != 0 && conj_de_objetos[i].pos[0] > obj_mais_distante->pos[0] ) { obj_mais_distante = &conj_de_objetos[i]; }
+			if( conj_de_objetos[i].id != 3 && conj_de_objetos[i].id != 0 && conj_de_objetos[i].pos[0] < obj_mais_proximo-> pos[0] ) { obj_mais_proximo  = &conj_de_objetos[i]; }
 
 			// Devemos verificar se a imagem é vísivel. Caso não, não devemos desenhá-la.
 			if( conj_de_objetos[i].pos[0] > WIDTH ){ continue; }
@@ -393,7 +402,6 @@ public:
 		if( !obj->id ) { obj->pos[0] = WIDTH; return; }  
 
 		double distancia_a_ser_colocado_do_ultimo = 200.0 + (rand() % 150) * 2;
-		fprintf(stderr, "\nAlocação: %.0lf", distancia_a_ser_colocado_do_ultimo);
 
 		obj->pos[0] = obj_mais_distante_->pos[0] + distancia_a_ser_colocado_do_ultimo;
 	}

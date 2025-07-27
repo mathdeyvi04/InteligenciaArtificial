@@ -36,10 +36,10 @@ int main() {
 
         graphicx::get_keys(aplication);
 
+        if( !ambiente.quantidade_de_dinos_vivos ) { aplication.is_running = 0; }
+
         SDL_SetRenderDrawColor(aplication.renderer, 255, 255, 255, 255);
         SDL_RenderClear(aplication.renderer);
-
-
 
         ambiente.apresentar_ambiente();
 
