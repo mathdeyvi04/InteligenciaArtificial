@@ -15,7 +15,7 @@ int main() {
     graphicx::Aplicacao aplication = graphicx::init_aplication();
 
     // Iniciamos ambiente.
-    Ambiente ambiente(aplication);
+    Ambiente ambiente(&aplication);
 
     // Iniciamos jogadores.
     std::vector<std::thread> dinossauros;
@@ -26,7 +26,7 @@ int main() {
     ){
 
         dinossauros.emplace_back(
-            jogador, ambiente
+            jogador, &ambiente
         );
     }
 

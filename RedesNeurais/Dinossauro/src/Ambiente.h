@@ -3,9 +3,6 @@
 
 #include "Graficos.h"
 
-#define QUANT_DINOS 1
-std::barrier sync_barrier(QUANT_DINOS + 1); // Thread Principal
-
 // Informações do sprite
 #define WIDTH_PX WIDTH
 #define HEIGTH_PX 87
@@ -104,8 +101,8 @@ public:
 					index_de_sprite = 0;
 
 					pos[0] = 10;
-					pos[1] = 750;
-					ratio_img[0]  = 50;
+					pos[1] = 705;
+					ratio_img[0]  = 60;
 					ratio_img[1]  = 70;
 
 				default:
@@ -130,7 +127,7 @@ public:
 					id == 2
 				){
 
-					if( caso_seja_movel == 7 ) { index_de_sprite = !index_de_sprite; caso_seja_movel = 0; } else{ caso_seja_movel++; }
+					if( caso_seja_movel == 7 ) { index_de_sprite = !index_de_sprite; caso_seja_movel = 0; } else { caso_seja_movel++; }
 				}
 
 				pos[0] -= vel_do_ambiente * graphicx::delta_time();
@@ -138,8 +135,34 @@ public:
 				return;
 			}
 
+			///////////////////////////////////////
 			// Então, temos apenas dinossauro.
-			// Em x, ele não se movimenta.
+
+			// Animação do mesmo.
+			if( caso_seja_movel == 7 ){
+
+				// Então ele está em pé, ou, senão, estará agachado.
+				if( index_de_sprite == 0 || index_de_sprite == 1 ){ index_de_sprite = 1 - index_de_sprite; } else { index_de_sprite = 5 - index_de_sprite; }
+
+				caso_seja_movel = 0;				
+			}
+			else{
+				caso_seja_movel++;
+			}
+
+			if(
+				pos[1] <= 705
+			){
+
+				// Então estamos nos movimentando no ar.
+				vely -= 650 * graphicx::delta_time();
+				pos[1] -= vely * graphicx::delta_time();
+			}
+			else{
+
+				pos[1] = 705;
+				vely = 0;
+			}
 		}
 	};
 
@@ -149,7 +172,7 @@ public:
 	std::vector<Objeto> conj_de_objetos;
 
 	SDL_Texture *textura_geral;
-	graphicx::Aplicacao aplication;
+	graphicx::Aplicacao* aplication = nullptr;
 
 	int VEL_AMBIENTE = 150;
 	Objeto* obj_mais_distante = nullptr;
@@ -162,7 +185,7 @@ public:
 	int QUANT_DE_OBJ = 2 + quant_de_obj_fixos + quant_de_obj_moveis;
 
 	Ambiente(
-		graphicx::Aplicacao& aplication_
+		graphicx::Aplicacao* aplication_
 	){
 		/*
 		Responsável por inicializar elementos que não participarão
@@ -172,7 +195,7 @@ public:
 		// Carregamos a imagem geral 
 		SDL_Surface* surface = IMG_Load("src/sprite.png");
 		if(!surface) { fprintf(stderr, "\nErro na Leitura da Sprite."); }
-		textura_geral = SDL_CreateTextureFromSurface(aplication_.renderer, surface);
+		textura_geral = SDL_CreateTextureFromSurface(aplication_->renderer, surface);
 		if(!textura_geral) { fprintf(stderr, "\nErro na Construção da Textura."); }
 		aplication = aplication_;
 
@@ -321,15 +344,13 @@ public:
 
 				conj_de_objetos[i].mover_se(VEL_AMBIENTE, obj_mais_distante);
 
-				if( (i + 1) == QUANT_DE_OBJ ) { i = -1; todos_ja_foram_movidos = 1; }
+				if( (i + 1) == (QUANT_DE_OBJ + QUANT_DINOS) ) { i = -1; todos_ja_foram_movidos = 1; }
 
 				continue;
 			}
 
 			// Agora podemos decidir que está mais distante.
 			if( conj_de_objetos[i].id != 3 && conj_de_objetos[i].id != 0 && conj_de_objetos[i].pos[0] > obj_mais_distante->pos[0] ) { obj_mais_distante = &conj_de_objetos[i]; }
-
-			if( conj_de_objetos[i].id == 3 ){ fprintf(stderr, "Vou colocar um dinossauro."); }
 
 			// Devemos verificar se a imagem é vísivel. Caso não, não devemos desenhá-la.
 			if( conj_de_objetos[i].pos[0] > WIDTH ){ continue; }
@@ -348,7 +369,7 @@ public:
 				conj_de_objetos[i].ratio_img[1]
 			};
 
-			SDL_RenderCopy(aplication.renderer, textura_geral, &corte, &pos);
+			SDL_RenderCopy(aplication->renderer, textura_geral, &corte, &pos);
 		}
 
 		// Ambiente libera dinossauro.

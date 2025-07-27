@@ -14,23 +14,26 @@ class Dino : Ambiente::Objeto {
 
 public:
 
-	Dino( Ambiente ambiente ) {
+	Dino( Ambiente* ambiente ) {
 		/*
 		Descrição:
 			Responsável por inicializar características críticas do dinossauro.
 		*/
 
-		ambiente.conj_de_objetos.emplace_back(
+		// Ambas threads não devem acessar este elemento simultaneamente.
+		mtx.lock();
+		ambiente->conj_de_objetos.emplace_back(
 			Objeto(
-				&ambiente.respectivos_cortes[ambiente.conj_de_sprites[3]],
+				&ambiente->respectivos_cortes[ambiente->conj_de_sprites[3]],
 				0, // index não importa.
 				3
 			)
 		);
+		// Com o mutex, temos garantia de que este é realmente o último.
+		Objeto* obj = &ambiente->conj_de_objetos.back();
+		mtx.unlock();
 
-
-
-
+		obj->vely += 400;
 	}
 
 
@@ -38,7 +41,7 @@ public:
 };
 
 void
-jogador( Ambiente ambiente ){
+jogador( Ambiente* ambiente ){
 	/*
 	Descrição:
 		Responsável por representar o fluxo do jogador.
@@ -50,8 +53,7 @@ jogador( Ambiente ambiente ){
 
 	Dino dino(ambiente);
 
-	while(ambiente.aplication.is_running){
-		fprintf(stderr, "\nVejo %d", ambiente.aplication.is_running);
+	while(ambiente->aplication->is_running){
 
 		// Dino deve tomar uma decisão e aplicá-la.
 		// Ambiente esperará por isso.
@@ -61,9 +63,7 @@ jogador( Ambiente ambiente ){
 		// Dino deve esperar ambiente mover a todos e apresentá-los.
 		sync_barrier.arrive_and_wait();
 	}
-
 	
-
 	fprintf(stderr, "\nThread %d saiu.", i);
 }
 
