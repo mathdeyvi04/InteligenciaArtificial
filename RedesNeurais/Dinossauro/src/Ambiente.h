@@ -45,6 +45,8 @@ public:
 		int esta_agachado = 0;
 		int esta_morto = 0;
 
+		int alt_min_para_dino = 715;
+
 		Objeto() = default;
 
 		Objeto(
@@ -101,12 +103,13 @@ public:
 					// Dinossauro
 
 					id = 3;
-					index_de_sprite = 0;
+					esta_agachado = 1;
+					index_de_sprite = 2;
 
 					pos[0] = 10;
-					pos[1] = 705;
-					ratio_img[0]  = 60;
-					ratio_img[1]  = 70;
+					pos[1] = alt_min_para_dino;
+					ratio_img[0]  = 90;
+					ratio_img[1]  = 60;
 
 				default:
 					break;
@@ -155,7 +158,7 @@ public:
 
 			// Se estiver pulando, devemos forçar uma única sprite
 			if(
-				pos[1] <= 705
+				pos[1] <= alt_min_para_dino
 			){
 
 				// Então estamos nos movimentando no ar.
@@ -165,7 +168,7 @@ public:
 			else{
 
 				// Caso não estejamos pulando
-				pos[1] = 705;
+				pos[1] = alt_min_para_dino;
 				vely = 0;
 			}
 		}
@@ -186,10 +189,6 @@ public:
 
 	int *respectivos_cortes = nullptr;
 	int conj_de_sprites[4] = {0};
-
-	int quant_de_obj_fixos = 10;
-	int quant_de_obj_moveis = 5;
-	int QUANT_DE_OBJ = 2 + quant_de_obj_fixos + quant_de_obj_moveis;
 
 	Ambiente(
 		graphicx::Aplicacao* aplication_
@@ -237,20 +236,22 @@ public:
 			)
 		);
 
+		int quant_de_obj_fixos = 5;
+		int quant_de_obj_moveis = 5;
+
 		// Com isso, conseguimos adicionar aleatoriedade na ordem.
 
 		int idx_fixo = 0;
 		int idx_movel = 0;
 		while(
 			idx_fixo < quant_de_obj_fixos || idx_movel < quant_de_obj_moveis
-		){
+		){	
 
 			if(
 				idx_fixo < quant_de_obj_fixos && rand() % 2
 			){
 
 				// Vamos colocar fixo.
-
 				conj_de_objetos.push_back(
 					Objeto(
 						&respectivos_cortes[conj_de_sprites[1]],
@@ -345,14 +346,13 @@ public:
 				i < (int)conj_de_objetos.size();
 				i++
 		){
-
 			if(
 				!todos_ja_foram_movidos
 			){
 
 				conj_de_objetos[i].mover_se(VEL_AMBIENTE, obj_mais_distante);
 
-				if( (i + 1) == (QUANT_DE_OBJ + QUANT_DINOS) ) { i = -1; todos_ja_foram_movidos = 1; }
+				if( (i + 1) == ((int)conj_de_objetos.size()) ) { i = -1; todos_ja_foram_movidos = 1; }
 
 				continue;
 			}

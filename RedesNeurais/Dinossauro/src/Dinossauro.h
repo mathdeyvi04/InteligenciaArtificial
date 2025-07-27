@@ -286,7 +286,7 @@ public:
 
 		neural_network.calcular_resultado(entrada, saida);
 
-		if( saida[0] > 0 && obj->vely == 0 ) { obj->vely = vel_de_impulso; obj->esta_agachado = 0; obj->index_de_sprite = 0; }
+		if( saida[0] > 0 && obj->vely == 0 ) { obj->vely = vel_de_impulso; obj->esta_agachado = 0; obj->index_de_sprite = 0; obj->ratio_img[0] = 60; obj->ratio_img[1] = 70; obj->alt_min_para_dino = 705; }
 		if(
 			saida[1] > 0
 		){
@@ -302,12 +302,12 @@ public:
 			else{
 
 				// Caso já estejamos no chão
-				if( !obj->esta_agachado ) { obj->esta_agachado = 1; obj->index_de_sprite = 2;}
+				if( !obj->esta_agachado ) { obj->esta_agachado = 1; obj->index_de_sprite = 2; obj->ratio_img[0] = 70; obj->ratio_img[1] = 60; obj->alt_min_para_dino = 715; }
 			}
 		}
 		else{
 
-			if( obj->esta_agachado ) { obj->esta_agachado = 0; obj->index_de_sprite = 0;}
+			// if( obj->esta_agachado ) { obj->esta_agachado = 0; obj->index_de_sprite = 0; obj->ratio_img[0] = 60; obj->ratio_img[1]  = 70; obj->alt_min_para_dino = 705; }
 		}
 	}
 
@@ -317,6 +317,8 @@ public:
 		Descrição:
 			Verificará se houve colisão do dinossauro com o obstáculo mais perto.
 		*/
+
+		return 0;
 
 		return (
 	        obj->pos[0] < ambiente->obj_mais_proximo->pos[0] + ambiente->obj_mais_proximo->ratio_img[0] &&
