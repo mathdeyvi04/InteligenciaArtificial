@@ -77,7 +77,7 @@ public:
 					// Obstáculo Fixo
 
 					id = 1;
-					index_de_sprite = 6 + rand() % 2; 
+					index_de_sprite = rand() % 6; 
 
 					pos[0] = 1600 + index * 400;
 					pos[1] = (index_de_sprite < 5) ? 720 : 710;
@@ -236,7 +236,7 @@ public:
 			)
 		);
 
-		int quant_de_obj_fixos = 5;
+		int quant_de_obj_fixos = 10;
 		int quant_de_obj_moveis = 5;
 
 		// Com isso, conseguimos adicionar aleatoriedade na ordem.
@@ -346,17 +346,17 @@ public:
 				i < (int)conj_de_objetos.size();
 				i++
 		){
+
 			if(
 				!todos_ja_foram_movidos
 			){
-
 				conj_de_objetos[i].mover_se(VEL_AMBIENTE, obj_mais_distante);
 
 				if( (i + 1) == ((int)conj_de_objetos.size()) ) { i = -1; todos_ja_foram_movidos = 1; }
 
 				continue;
 			}
-
+			
 			// Agora podemos decidir que está mais distante.
 			if( conj_de_objetos[i].id != 3 && conj_de_objetos[i].id != 0 && conj_de_objetos[i].pos[0] > obj_mais_distante->pos[0] ) { obj_mais_distante = &conj_de_objetos[i]; }
 			if( conj_de_objetos[i].id != 3 && conj_de_objetos[i].id != 0 && conj_de_objetos[i].pos[0] < obj_mais_proximo-> pos[0] ) { obj_mais_proximo  = &conj_de_objetos[i]; }

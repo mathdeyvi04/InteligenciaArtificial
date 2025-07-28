@@ -73,9 +73,9 @@ public:
 
 		//////////////////////////////////////////////////////////////
 
-		static float gerar_numero_aleatorio(int min = - 100, int max = 100){ return min + rand() % (max - min + 1); }
+		static float gerar_numero_aleatorio(int min = - 10, int max = 10){ return min + rand() % (max - min + 1); }
 
-		static int activate_function(float valor) { return (valor > 0) ? valor / 1000.0 : 0; }
+		static int activate_function(float valor) { return (valor > 0) ? valor / 100.0 : 0; }
 
 		static float calcular_neuronio(float* vetor, float& peso, float& bias) { float sum = 0; for(int i = 0; i < 3; i++) { sum += vetor[i] * peso + bias; } return sum; }
 
@@ -286,6 +286,8 @@ public:
 
 		neural_network.calcular_resultado(entrada, saida);
 
+		fprintf(stderr, "\n- [%f, %f]", saida[0], saida[1]);
+
 		if( saida[0] > 0 && obj->vely == 0 ) { obj->vely = vel_de_impulso; obj->esta_agachado = 0; obj->index_de_sprite = 0; obj->ratio_img[0] = 60; obj->ratio_img[1] = 70; obj->alt_min_para_dino = 705; }
 		if(
 			saida[1] > 0
@@ -307,7 +309,7 @@ public:
 		}
 		else{
 
-			// if( obj->esta_agachado ) { obj->esta_agachado = 0; obj->index_de_sprite = 0; obj->ratio_img[0] = 60; obj->ratio_img[1]  = 70; obj->alt_min_para_dino = 705; }
+			if( obj->esta_agachado ) { obj->esta_agachado = 0; obj->index_de_sprite = 0; obj->ratio_img[0] = 60; obj->ratio_img[1]  = 70; obj->alt_min_para_dino = 705; }
 		}
 	}
 
@@ -318,7 +320,6 @@ public:
 			Verificará se houve colisão do dinossauro com o obstáculo mais perto.
 		*/
 
-		return 0;
 
 		return (
 	        obj->pos[0] < ambiente->obj_mais_proximo->pos[0] + ambiente->obj_mais_proximo->ratio_img[0] &&
@@ -354,7 +355,7 @@ jogador( Ambiente* ambiente ){
 		// Dino deve esperar ambiente mover a todos e apresentá-los.
 		sync_barrier.arrive_and_wait();
 
-		if( dino.verificar_colisao() ){ dino.obj->esta_morto = 1; mtx.lock(); ambiente->quantidade_de_dinos_vivos -= 1; mtx.unlock(); }
+		if( !dino.obj->esta_morto && dino.verificar_colisao() ){ dino.obj->esta_morto = 1; mtx.lock(); ambiente->quantidade_de_dinos_vivos -= 1; mtx.unlock(); fprintf(stderr, "\nThread %d morreu.", i); }
 	}
 	
 	fprintf(stderr, "\nThread %d saiu.", i);
