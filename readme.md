@@ -22,6 +22,10 @@ Escrevi-o com a ajuda do canal _3Blue1Brown_ e com o ChatGPT, este para os menos
 
 Compilado de estudos específicos na área de Redes Neurais.
 
+### [Estudando Algoritmos Genéticos](AlgoritmosGeneticos)
+
+Compilado de estudos específicos na área.
+
 ---
 
 
