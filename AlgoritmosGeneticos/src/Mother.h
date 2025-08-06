@@ -22,13 +22,15 @@ public:
 	static int gerar_aleatorio(int min, int max){ return rand() % (max - min + 1) + min; } 
 
 	int DIMENSION = 2;
-	int QUANT_PONTOS = 10000;
+	int QUANT_PONTOS = 20;
 
 	int* points = nullptr;
 	int* ponto_de_convergencia;
 
 	int indice_especial = -1;
 	int mutation_ratio = 20;
+
+	bool simulation = False;
 
 	Mother(){
 		/*
@@ -41,13 +43,19 @@ public:
 		points = (int*)malloc(DIMENSION * QUANT_PONTOS * sizeof(int));
 		ponto_de_convergencia = (int*)calloc(DIMENSION, sizeof(int));
 
+		if(simulation){
+			
+			// Aqui devemos sintetizar onde devemos colocar o ponto de convergência.			
+		}
+
 		for(
 			int i = 0;
 				i < DIMENSION * QUANT_PONTOS;
 				i += 1 // -> Neste primeiro caso não importa
 		){
 
-			points[i] = gerar_aleatorio(0, TAMANHO);
+			// Observe que para ambientes simulados, os pontos nascerão próximos do (0, ..., 0).
+			points[i] = (simulation) ? 0 + 2 * gerar_aleatorio(-mutation_ratio, mutation_ratio) : gerar_aleatorio(0, TAMANHO);
 		}
 	}
 

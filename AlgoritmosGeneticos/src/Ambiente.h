@@ -105,7 +105,6 @@ public:
 				points[i + 1]
 			);
 		}
-
 	}
 
 	void 

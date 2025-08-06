@@ -47,6 +47,9 @@ simulation_points(int dimension, int quant_de_pontos, int param_convergence){
 	mae.DIMENSION = dimension;
 	mae.QUANT_PONTOS = quant_de_pontos;
 
+	// Devemos criar uma forma de centralizar a execução apenas no algoritmo.
+	
+
 
 
 
