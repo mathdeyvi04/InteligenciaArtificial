@@ -1,15 +1,54 @@
 # Objetivo
 
-Analisar eficiência de algoritmos genéticos, os quais
-serão utilizados puramente como estatística e probabilidade.
+Analisar eficiência de algoritmos genéticos.
 
-# [Um Pouco do Estudo](UmPoucoDoEstudo.md)
+Construimos o código de forma a realizar modificações dentro dele
+e permitir o estudo de diferentes algoritmos. 
+
+Neste repositório, há apenas o mais simples.
+
+# Um Pouco da Análise dos Algoritmos
+
+### Algoritmo Assexual
+
+- A partir de um conjunto inicial de indivíduos, $C_i = [v_1, v_2, ..., v_n]$;
+- Avalia-se o melhor indivíduo, $v_p$;
+- Ele é multiplicado por toda uma população, $[v_p, ...]$;
+- Adiciona-se uma taxa de mutação aleatória, $[v_p + \delta_1, ..., v_p + \delta_n]$;
+- Então, cria-se uma nova população, $C_{i + 1} = [v'_1, v'_2, ..., v'_n]$.
+
+### Algoritmo Sexual
+
+- A partir de um conjunto inicial de indivíduso, $C_i = [v_1, v_2, ..., v_n]$;
+- Seleciona-se os **dois melhores**, $v_p$ e $v_q$;
+- Aplica-se uma troca de informação entre os indivíduos:
+	- Neste caso, as suas componentes são unidas de forma a gerar o filho.
+	- Exemplo: $v_p = [p_1, ...]$ e $v_q = [q_1, ...]$ geram $f_{pq} = [p_1, q_2, p_3, q_4, ...]$
+- Este filho é multiplicado por toda uma população;
+- Adiciona-se uma taxa de mutação aleatória;
+- Então, cria-se uma nova população $C_{i + 1}$.
+
+### Algoritmo Sexual Aleatório
+
+- A partir de um conjunto inicial de indivíduso, $C_i = [v_1, v_2, ..., v_n]$;
+- De posse de uma lista ordenada dos melhores indivíduos, seleciona-se dois aleatórios dela: $v_p$ e $v_q$;
+- Aplica-se uma troca de informação entre os indivíduos:
+	- Neste caso, as suas componentes são unidas de forma a gerar o filho.
+	- Exemplo: $v_p = [p_1, ...]$ e $v_q = [q_1, ...]$ geram $f_{pq} = [p_1, q_2, p_3, q_4, ...]$
+- Este filho é multiplicado por toda uma população;
+- Adiciona-se uma taxa de mutação aleatória;
+- Então, cria-se uma nova população $C_{i + 1}$.
+
+É interessante verificar como o _algoritmo sexual_ diferencia pouco do _algoritmo sexual aleatório_, este último
+leva em consideração a possibilidade de que o filho gerado pelos 2 primeiros não necessariamente é o melhor filho 
+possível de ser gerado.
+
+
+-----------------------------------------------------------------------------
 
 # Executando
 
-Há duas opções principais de execução, ambas oferecidas pelo `Makefile`.
-
-## Pelo C++
+Há diferentes opções de execução, todas oferecidas pelo `Makefile`.
 
 ### `make`
 
@@ -18,16 +57,8 @@ para atingir o mouse.
 
 ### `make create`
 
-Criará o executável que será responsável por gerar uma simulação mais avançada e
-profunda. Execute-o da seguinte forma:
-
-- `./main N_1 N_2 N_3`
-
-Retornará a quantidade mínima de gerações necessárias para uma quantidade de N_2 
-pontos de dimensão N_1 atingir um limiar de convergência N_3.
+... a ser definido.
 
 ### `make python`
 
-Criará uma biblioteca `.so` dotada de duas funções: `apresentation_points`, que possui 
-mesmo resultado de `make`, `simulation_points`, que é o mesmo resultado de `./main N_1 N_2 N_3`.
-Há documentações aprofundadas em cada.
+Criará uma biblioteca `.so` que pode ser utilizada em Python.

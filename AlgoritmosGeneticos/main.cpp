@@ -1,5 +1,5 @@
 #include "src/Ambiente.h"
-#include <time.h>
+#include <vector>
 
 void
 apresentation_points(){
@@ -10,7 +10,7 @@ apresentation_points(){
 	*/
 	Janela janela;
 
-	Mother mae;
+	Mother mae(False);
 
 	while( janela.is_running ){
 
@@ -18,7 +18,7 @@ apresentation_points(){
 			// Então houve um clique.
 
 			float dist_sq_media = mae.gerar_novo_conj(SDL_GetMouseState);
-			fprintf(stderr, "\nDist Quadrática Média / Área: %f", dist_sq_media);
+			//fprintf(stderr, "\nDist Quadrática Média / Área: %f", dist_sq_media);
 		}
 
 		// Vamos renderizar.
@@ -36,26 +36,33 @@ apresentation_points(){
 	janela.encerrar();
 }
 
-void
-simulation_points(int dimension, int quant_de_pontos, int param_convergence){
-	/*
-	Forneceremos uma descrição mais apropriada dentro do pybind11.
-	*/
-
-	int n_gen = 0;
-	Mother mae;
-	mae.DIMENSION = dimension;
-	mae.QUANT_PONTOS = quant_de_pontos;
-
-	// Devemos criar uma forma de centralizar a execução apenas no algoritmo.
-	
+// Função Anônima: [](int* a, int* b) -> unsigned int { return 1; }
 
 
 
+#ifdef BUILD_AS_PYTHON_MODULE
 
-	mae.encerrar();
-}
+// ---------------------------------------
+// Execução para Python
+// #include <pybind11/pybind11.h>
 
+// PYBIND11_MODULE(
+// 	genetic_points,
+// 	m 
+// ){
+// 	m.def(
+
+// 	);
+
+// }
+
+
+
+
+#else
+
+// ------------------------------------------------
+// Execução usando C++
 
 int main(int argc, char* argv[]){
 	/*
@@ -67,25 +74,21 @@ int main(int argc, char* argv[]){
 			Executará uma apresentação 2D.
 
 		-> ./main N_1 N_2 N_3
-			Retornará um número indicando a quantidade de gerações
-			necessárias para que a quantidade N_2 de pontos em um espaço
-			de N_1 dimensões atinjam a convergência a partir de um 
-			parâmetro N_3.
-	*/
+			Retornará vetor de N_3 distâncias quadráticas médias 
+			correspondendo às N_3 gerações de N_2 pontos cada uma tendo 
+			dimensão N_1.
 
-	srand(time(NULL));
+			Há um 4° parâmetro que pode ser inserido a fim de modificar a taxa
+			de mutação.
+	*/
 
 	switch(argc){
 
-		case 1:
+		case 1: {
 			// Caso nada seja inserido.
 			apresentation_points();
 			break;
-
-		case 4:
-			// Precisamos fornecer os argumentos corretos.
-			simulation_points(std::atoi(argv[1]), std::atoi(argv[2]), std::atoi(argv[3]));
-			break;
+		}
 
 		default:
 			break;
@@ -94,3 +97,5 @@ int main(int argc, char* argv[]){
 	fprintf(stderr, "\n");
 	return 0;
 }
+
+#endif

@@ -2,6 +2,7 @@
 #define AMBIENTE_H
 
 #include "Mother.h"
+
 #include <SDL2/SDL.h>
 
 class Janela {

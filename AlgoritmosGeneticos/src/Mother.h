@@ -1,6 +1,7 @@
 #ifndef MOTHER_H
 #define MOTHER_H
 
+#include <time.h>  // Para o srand.
 #include <cstdlib>
 #include <climits>
 
@@ -28,16 +29,21 @@ public:
 	int* ponto_de_convergencia;
 
 	int indice_especial = -1;
-	int mutation_ratio = 20;
+	int mutation_ratio = 0;
 
 	bool simulation = False;
 
-	Mother(){
+	Mother(bool is_simulation = False, int mutation_ratio_ = 20){
 		/*
 		Descrição:
 			Responsável por inicializar o conjunto de pontos.
 			Todos nascem de forma aleatória pelo cartesiano.
 		*/
+
+		srand(time(NULL));
+
+		simulation = is_simulation;
+		mutation_ratio = mutation_ratio_;
 
 		// Alocamos os números
 		points = (int*)malloc(DIMENSION * QUANT_PONTOS * sizeof(int));
@@ -45,7 +51,9 @@ public:
 
 		if(simulation){
 			
-			// Aqui devemos sintetizar onde devemos colocar o ponto de convergência.			
+			// Aqui devemos sintetizar onde devemos colocar o ponto de convergência.
+			ponto_de_convergencia[0] = TAMANHO - 10;
+			ponto_de_convergencia[1] = TAMANHO - 10;		
 		}
 
 		for(
@@ -75,7 +83,7 @@ public:
 		*/
 
 		// No caso bidimensional, faz sentido pensarmos no mouse.
-		if( DIMENSION == 2 ) { obter_convergencia(ponto_de_convergencia, ponto_de_convergencia + 1); }
+		if( DIMENSION == 2 && !simulation ) { obter_convergencia(ponto_de_convergencia, ponto_de_convergencia + 1); }
 
 		int delta = 0;
 		int menor_dist_sq = INT_MAX;
