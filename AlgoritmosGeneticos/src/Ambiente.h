@@ -4,8 +4,6 @@
 #include "Mother.h"
 #include <SDL2/SDL.h>
 
-#include <cmath>
-
 class Janela {
 	/*
 	Descrição:
@@ -25,7 +23,7 @@ public:
 		window = SDL_CreateWindow(
 			"Evoluções",
         	SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
-        	COMPRIMENTO, ALTURA,
+        	TAMANHO, TAMANHO,
         	0
         );
 
@@ -80,16 +78,17 @@ public:
 	void 
 	apresentar_pontos(
 		int* points,
+		int quant_pontos,
 		int especial
 	){
 		/*
 		Descrição:
-			Apresentará os pontos.
+			Apresentará os pontos bidimensionais.
 		*/
 
 		for(
 			int i = 0;
-				i < 2 * QUANT_PONTOS;
+				i < 2 * quant_pontos;
 				i += 2
 		){
 
