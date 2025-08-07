@@ -17,8 +17,10 @@ apresentation_points(
 		1,
 		2,
 		20,
-		50
+		10
 	);
+
+	mae.debug = True;
 
 	while( janela.is_running ){
 

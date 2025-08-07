@@ -25,6 +25,26 @@ public:
 
 	static bool check_presence(int valor, int* lista, int length){ for( int i = 0; i < length; i++ ){ if(valor == lista[i]){ return True; } } return False; }
 
+	static void print_vector(int* vetor, int dim){
+
+		int i = 0;
+		while(True){
+
+			if( i == 0 ){
+
+				fprintf(stderr, "[");
+			}
+			else if( i == dim ){
+
+				fprintf(stderr, "\b\b]");
+				return;
+			}
+
+			fprintf(stderr, "%d, ", vetor[i]);
+			i++;
+		}
+	}
+
 	int DIMENSION;
 	int QUANT_PONTOS;
 	bool simulation = False;
@@ -38,6 +58,8 @@ public:
 	int indice_especial[5] = {-1, -1, -1, -1, -1};
 	int quant_de_indices_a_serem_populados = 0;
 	int algoritmo_escolhido = 0;
+
+	bool debug = False;
 
 	Mother(
 		bool is_simulation,
@@ -217,6 +239,27 @@ public:
 				default: {
 					break;
 				}
+			}
+
+			// Faremos uma análise detalhada do esquema.
+			if(
+				debug
+			){
+				system("clear");
+				fprintf(stderr, "\n-------------------------------------------------");
+				fprintf(stderr, "\nMelhores: ");
+				print_vector(indice_especial, 5);
+				fprintf(stderr, "\nIndivíduos: ");
+				for(
+					int i = 0;
+						i < QUANT_PONTOS * DIMENSION;
+						i += DIMENSION
+				){
+
+					fprintf(stderr, "\nid: %d | ", i);
+					print_vector(points + i, DIMENSION);
+				}
+				fprintf(stderr, "\n---------------------------------------------------");
 			}
 		}
 
