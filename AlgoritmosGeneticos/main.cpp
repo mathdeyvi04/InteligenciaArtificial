@@ -10,15 +10,19 @@ apresentation_points(){
 	*/
 	Janela janela;
 
-	Mother mae(False);
+	Mother mae(
+		False,
+		2,
+		20,
+		50
+	);
 
 	while( janela.is_running ){
 
 		if( janela.get_keys() ){
 			// Então houve um clique.
 
-			float dist_sq_media = mae.gerar_novo_conj(SDL_GetMouseState);
-			//fprintf(stderr, "\nDist Quadrática Média / Área: %f", dist_sq_media);
+			float dist_sq_media = mae.get_sex(0, SDL_GetMouseState);
 		}
 
 		// Vamos renderizar.
@@ -26,7 +30,7 @@ apresentation_points(){
 		SDL_SetRenderDrawColor(janela.renderer, 255, 255, 255, 255);  // fundo
         SDL_RenderClear(janela.renderer);
 
-        janela.apresentar_pontos(mae.points, mae.QUANT_PONTOS, mae.indice_especial);
+        janela.apresentar_pontos(mae.points, mae.QUANT_PONTOS, mae.indice_especial[0]);
 
         SDL_RenderPresent(janela.renderer);
 		SDL_Delay(100);
@@ -45,15 +49,15 @@ apresentation_points(){
 // ---------------------------------------
 // Execução para Python
 // #include <pybind11/pybind11.h>
+// #include <pybind11/stl.h>
+// using namespace pybind11::literals;
 
-// PYBIND11_MODULE(
-// 	genetic_points,
-// 	m 
-// ){
-// 	m.def(
+// int soma(int x, int y) {
+//     return x + y;
+// }
 
-// 	);
-
+// PYBIND11_MODULE(meumodulo, m) {
+//     m.def("soma", &soma, "Soma dois números", "x"_a, "y"_a);
 // }
 
 
