@@ -2,8 +2,8 @@
 #define MOTHER_H
 
 #include <time.h>  // Para o srand.
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 #include <climits>
 
 #define TAMANHO 800 // Janela
@@ -31,14 +31,17 @@ public:
 
 	// Base da Aplicação
 	int* points = nullptr;
-	int* ponto_de_convergencia;
+	int* ponto_de_convergencia = nullptr;
+	int* child = nullptr;
 	int mutation_ratio;
 
 	int indice_especial[5] = {-1, -1, -1, -1, -1};
-	int indices_populados = 0;
+	int quant_de_indices_a_serem_populados = 0;
+	int algoritmo_escolhido = 0;
 
 	Mother(
 		bool is_simulation,
+		int  algoritmo_escolhido_,
 		int  dimension,
 		int  quant_de_pontos,
 		int  mutation_ratio_
@@ -55,6 +58,9 @@ public:
 		*/
 
 		simulation = is_simulation;
+		algoritmo_escolhido = algoritmo_escolhido_;
+		quant_de_indices_a_serem_populados = (algoritmo_escolhido_ == 0) ? 1 : ( (algoritmo_escolhido_ == 1) ? 2 : 5 );
+
 		DIMENSION = dimension;
 		QUANT_PONTOS = quant_de_pontos;
 		mutation_ratio = mutation_ratio_;
@@ -66,6 +72,7 @@ public:
 		// Alocamos os números
 		points = new int[DIMENSION * QUANT_PONTOS]; 
 		ponto_de_convergencia = new int[DIMENSION];
+		child = new int[DIMENSION];
 
 		for(
 			int i = 0;
@@ -81,9 +88,7 @@ public:
 	}
 
 	void
-	get_the_best(
-		int quant_de_melhores_a_serem_verificados
-	){
+	get_the_best(){
 		/*
 		Descrição:
 			Responsável por popular a lista de índices com 
@@ -91,14 +96,15 @@ public:
 			ponto de convergência.
 		*/
 
+		int indices_populados = 0;
 		while(
-			indices_populados != quant_de_melhores_a_serem_verificados
+			indices_populados != quant_de_indices_a_serem_populados && indices_populados < QUANT_PONTOS
 		){
 
 			int menor_dist_sq = INT_MAX;
 			for(
 				int i = 0;
-					i < DIMENSION * QUANT_PONTOS;
+					i <  DIMENSION * QUANT_PONTOS;
 					i += DIMENSION
 			){
 				int dist_sq = 0;
@@ -113,7 +119,7 @@ public:
 				}
 
 				if( 
-					dist_sq < menor_dist_sq && !check_presence(i, indice_especial, quant_de_melhores_a_serem_verificados)
+					dist_sq < menor_dist_sq && !check_presence(i, indice_especial, indices_populados)
 				){ 
 					// Atualizamos nova menor distância
 					menor_dist_sq = dist_sq; 
@@ -125,13 +131,10 @@ public:
 
 			indices_populados++;
 		}
-
-		indices_populados = 0; // Zeramos para próximas execuções
 	}
 
 	float
 	get_sex(
-		int algoritmo_escolhido,
 		unsigned int (*get_mouse)(int*, int*)
 	){
 		/*
@@ -148,8 +151,6 @@ public:
 		// Vamos obter o ponto de convergência.
 		if( DIMENSION == 2 && !simulation ){ get_mouse(ponto_de_convergencia, ponto_de_convergencia + 1); }
 
-		int* child = new int[DIMENSION];
-
 		if(
 			indice_especial[0] != -1
 		){
@@ -159,18 +160,58 @@ public:
 				case 0: {
 					// Devemos obter o melhor elemento, apenas.
 
-					child[0] = points[indice_especial[0]];
-					child[1] = points[indice_especial[0] + 1];
+					for(
+						int j = 0;
+							j < DIMENSION;
+							j++
+					){
+
+						child[j] = points[ indice_especial[0] + j ];
+					}
 
 					break;
 				}
 
 				case 1: {
+					// Devemos trocar os genes dos 2's melhores.
 
+					for(
+						int j = 0;
+							j < DIMENSION;
+							j++
+					){
+
+						child[j] = points[ indice_especial[ j % 2 ] + j ];
+					}
 				}
 
 				case 2: {
+					// Devemos selecionar aleatoriamente 2 dos 5 melhores.
 
+					int idx_lista_melhores[2];
+
+					// ------------------------------------------------
+					// Apenas garantindo que serão genitores diferentes
+					idx_lista_melhores[0] = rand() % 5;
+					idx_lista_melhores[1] = rand() % 5;
+
+					while(
+						idx_lista_melhores[1] == idx_lista_melhores[0]
+					){
+
+						idx_lista_melhores[1] = rand() % 5;
+					}
+
+					// -------------------------------------------------
+					// Realizando Sexo
+					for(
+						int j = 0;
+							j < DIMENSION;
+							j++
+					){
+
+						child[j] = points[ indice_especial[ idx_lista_melhores[ j % 2 ] ] + j ];
+					}
 				}
 
 				default: {
@@ -179,9 +220,6 @@ public:
 			}
 		}
 
-		// free(child);
-		// fprintf(stderr, "\nMELHOR: %d", indice_especial[0]);
-		// return 1.0f;
 		return apply_mutation(child);
 	}
 
@@ -228,92 +266,17 @@ public:
 			}
 		}
 
-		get_the_best(5);
-
-		free(child);
+		get_the_best();
 
 		return (float)total_dist_sq / QUANT_PONTOS / (TAMANHO * TAMANHO);
 	}
-
-	/* 
-	-------------------------------------------------------------------------
-	O código a seguir trata do algoritmo assexual. 
-	Note como é focado em perfomance.
-	-------------------------------------------------------------------------
-	*/
-	// float
-	// gerar_novo_conj(
-	// 	unsigned int (*obter_convergencia)(int*, int*),
-
-	// ){
-	// 	/*
-	// 	Descrição:
-	// 		Responsável por aglutinar o algoritmo de geração de novos 
-	// 		pontos e de escolha de melhor.
-
-	// 		Também realiza medidas de convergência.
-
-	// 	Retorno:
-	// 		Razão Entre Distância Quadrática Média dos Pontos e Área Total.
-	// 	*/
-
-	// 	// No caso bidimensional, faz sentido pensarmos no mouse.
-	// 	if( DIMENSION == 2 && !simulation ) { obter_convergencia(ponto_de_convergencia, ponto_de_convergencia + 1); }
-
-	// 	int delta = 0;
-	// 	int menor_dist_sq = INT_MAX;
-	// 	int dist_sq_medida = 0;
-	// 	int indice_especial_antigo = indice_especial;
-	// 	long int soma_total_dist_sq = 0;
-	// 	for(
-	// 		int i = 0;
-	// 			i < DIMENSION * QUANT_PONTOS;
-	// 			i += DIMENSION
-	// 	){
-
-	// 		// Gerando novos pontos
-	// 		if(
-	// 			indice_especial_antigo != -1
-	// 		){
-
-	// 			for(
-	// 				int j = 0;
-	// 					j < DIMENSION;
-	// 					j++
-	// 			){
-
-	// 				points[i + j] = points[indice_especial_antigo + j] + gerar_aleatorio( -mutation_ratio, mutation_ratio );
-	// 			}
-	// 		}
-
-	// 		// -------------------------------------------------------------------------------------------------
-
-	// 		// Escolhendo melhor
-	// 		for(
-	// 			int j = 0;
-	// 				j < DIMENSION;
-	// 				j++
-	// 		){
-
-	// 			delta = points[i + j] - ponto_de_convergencia[j];
-	// 			dist_sq_medida += delta * delta;
-	// 		}
-
-	// 		if( dist_sq_medida < menor_dist_sq ){ menor_dist_sq = dist_sq_medida; indice_especial = i; }
-
-	// 		// Iniciaremos outra busca
-	// 		soma_total_dist_sq += dist_sq_medida;
-	// 		dist_sq_medida = 0;
-	// 	}
-
-	// 	return (float)soma_total_dist_sq / (QUANT_PONTOS) / (TAMANHO * TAMANHO);
-	// }
 
 	void
 	encerrar(){
 
 		if( points ) { delete points; }
 		if( ponto_de_convergencia ){ delete ponto_de_convergencia; }
+		if( child ){ delete child; }
 	}
 };
 

@@ -2,7 +2,9 @@
 #include <vector>
 
 void
-apresentation_points(){
+apresentation_points(
+
+){
 	/*
 	Descrição:
 		Caso desejado pelo usuário, providenciará 
@@ -12,6 +14,7 @@ apresentation_points(){
 
 	Mother mae(
 		False,
+		1,
 		2,
 		20,
 		50
@@ -22,7 +25,7 @@ apresentation_points(){
 		if( janela.get_keys() ){
 			// Então houve um clique.
 
-			float dist_sq_media = mae.get_sex(0, SDL_GetMouseState);
+			float dist_sq_media = mae.get_sex(SDL_GetMouseState);
 		}
 
 		// Vamos renderizar.
@@ -30,7 +33,7 @@ apresentation_points(){
 		SDL_SetRenderDrawColor(janela.renderer, 255, 255, 255, 255);  // fundo
         SDL_RenderClear(janela.renderer);
 
-        janela.apresentar_pontos(mae.points, mae.QUANT_PONTOS, mae.indice_especial[0]);
+        janela.apresentar_pontos(mae.points, mae.QUANT_PONTOS, mae.indice_especial, mae.quant_de_indices_a_serem_populados);
 
         SDL_RenderPresent(janela.renderer);
 		SDL_Delay(100);

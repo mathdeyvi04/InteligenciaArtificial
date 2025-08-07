@@ -79,26 +79,41 @@ public:
 	void 
 	apresentar_pontos(
 		int* points,
-		int quant_pontos,
-		int especial
+		int  quant_pontos,
+		int* especial,
+		int  quant_de_especiais
 	){
 		/*
 		Descrição:
 			Apresentará os pontos bidimensionais.
 		*/
 
+		// -------------------------------------------
+		// Caso seja especial, a cor alterará automaticamente
 		for(
 			int i = 0;
 				i < 2 * quant_pontos;
 				i += 2
 		){
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
-			if( i == especial ){
+			for(
+				int j = 0;
+					j < quant_de_especiais;
+					j++
+			){
 
-				SDL_SetRenderDrawColor(renderer, 3, 144, 252, 255);
-			}
-			else{
-				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+				if( i == especial[j] ){
+
+					SDL_SetRenderDrawColor(
+						renderer, 
+						0,
+						255 - j * 40, 
+						0,
+						255
+					);
+					break;
+				}
 			}
 
 			desenhar(
