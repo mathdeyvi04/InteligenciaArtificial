@@ -19,6 +19,11 @@ public:
 	SDL_Event event;
 	bool is_running;
 
+	bool is_pressed = False;
+	int tempo_pressionado = 0;
+
+	int delay = 100;
+
 	Janela(){
 
 		window = SDL_CreateWindow(
@@ -53,9 +58,30 @@ public:
 			if( event.type == SDL_MOUSEBUTTONDOWN ){
 				// Ok, avançar.
 
+				is_pressed = True;
 				return True;
 			}
 
+			if( event.type == SDL_MOUSEBUTTONUP ){
+
+				is_pressed = False;
+				tempo_pressionado = 0;
+				return False;
+			}
+	    }
+
+	    // Vamos considerar o caso de manter pressionado.
+	    if( is_pressed ){
+
+	    	if( tempo_pressionado != 15 * delay ){
+
+	    		// Cada ciclo
+	    		tempo_pressionado += delay;
+	    	}
+	    	else{
+
+	    		return True;
+	    	}
 	    }
 
 		// Qualquer outro caso

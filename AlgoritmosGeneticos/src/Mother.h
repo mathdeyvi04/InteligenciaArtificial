@@ -66,6 +66,7 @@ public:
 		int  algoritmo_escolhido_,
 		int  dimension,
 		int  quant_de_pontos,
+		bool is_debug,
 		int  mutation_ratio_
 	){
 		/*
@@ -85,6 +86,7 @@ public:
 
 		DIMENSION = dimension;
 		QUANT_PONTOS = quant_de_pontos;
+		debug = is_debug;
 		mutation_ratio = mutation_ratio_;
 
 		// --------------------------------------------------------------------------
@@ -205,6 +207,8 @@ public:
 
 						child[j] = points[ indice_especial[ j % 2 ] + j ];
 					}
+
+					break;
 				}
 
 				case 2: {
@@ -234,6 +238,8 @@ public:
 
 						child[j] = points[ indice_especial[ idx_lista_melhores[ j % 2 ] ] + j ];
 					}
+
+					break;
 				}
 
 				default: {
@@ -245,8 +251,8 @@ public:
 			if(
 				debug
 			){
-				system("clear");
-				fprintf(stderr, "\n-------------------------------------------------");
+
+				fprintf(stderr, "\n---------------------------------------------------");
 				fprintf(stderr, "\nMelhores: ");
 				print_vector(indice_especial, 5);
 				fprintf(stderr, "\nIndivíduos: ");
@@ -256,9 +262,11 @@ public:
 						i += DIMENSION
 				){
 
-					fprintf(stderr, "\nid: %d | ", i);
+					fprintf(stderr, "\n\tid: %d | ", i);
 					print_vector(points + i, DIMENSION);
 				}
+				fprintf(stderr, "\nFilho: ");
+				print_vector(child, DIMENSION);
 				fprintf(stderr, "\n---------------------------------------------------");
 			}
 		}

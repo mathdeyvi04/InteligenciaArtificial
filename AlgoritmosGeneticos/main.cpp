@@ -3,7 +3,11 @@
 
 void
 apresentation_points(
-
+	int is_simulation,
+	int algoritmo_escolhido,
+	int quant_de_pontos,
+	bool is_debug = False,
+	int mutation_ratio = 20
 ){
 	/*
 	Descrição:
@@ -13,14 +17,13 @@ apresentation_points(
 	Janela janela;
 
 	Mother mae(
-		False,
-		1,
+		is_simulation,
+		algoritmo_escolhido,
 		2,
-		20,
-		10
+		quant_de_pontos,
+		is_debug,
+		mutation_ratio
 	);
-
-	mae.debug = True;
 
 	while( janela.is_running ){
 
@@ -38,16 +41,25 @@ apresentation_points(
         janela.apresentar_pontos(mae.points, mae.QUANT_PONTOS, mae.indice_especial, mae.quant_de_indices_a_serem_populados);
 
         SDL_RenderPresent(janela.renderer);
-		SDL_Delay(100);
+		SDL_Delay(janela.delay);
 	}
 
 	mae.encerrar();
 	janela.encerrar();
 }
 
+void
+execute_simulation(
+	int algoritmo_escolhido,
+	int dimensao,
+	int quant_de_pontos,
+	bool is_debug = False,
+	int mutation_ratio = 20
+){
+
+}
+
 // Função Anônima: [](int* a, int* b) -> unsigned int { return 1; }
-
-
 
 #ifdef BUILD_AS_PYTHON_MODULE
 
@@ -79,23 +91,109 @@ int main(int argc, char* argv[]){
 		Responsável por executar a simulação de diferentes formas.
 
 	Parâmetros:
-		-> ./main
-			Executará uma apresentação 2D.
+	
+		O primeiro argumento inserido representa `is_apresentation`,
+		relatando se trata-se de uma apresentação 2D.
 
-		-> ./main N_1 N_2 N_3
-			Retornará vetor de N_3 distâncias quadráticas médias 
-			correspondendo às N_3 gerações de N_2 pontos cada uma tendo 
-			dimensão N_1.
+		Os argumentos N_4 e N_5 estão com '?' pois são opcionais,
+		representando `is_debug` e taxa de mutação, respectivamente.
 
-			Há um 4° parâmetro que pode ser inserido a fim de modificar a taxa
-			de mutação.
+		./main 1 N_1 N_2 N_3 N_4? N_5?
+	
+			N_1 -> Configuração de Simulação
+			N_2 -> Algoritmo Selecionado
+			N_3 -> Quantidade de Pontos
+
+		./main 0 N_1 N_2 N_3 N_4? N_5?
+
+			N_1 -> Algoritmo Selecionado
+			N_2 -> Dimensão
+			N_3 -> Quantidade de Pontos
 	*/
 
 	switch(argc){
 
 		case 1: {
-			// Caso nada seja inserido.
-			apresentation_points();
+			// Caso nada seja inserido, vamos colocar o padrão.
+			apresentation_points(0, 1, 20);
+			break;
+		}
+
+		case 5: {
+
+			if(
+				std::atoi(argv[1]) == 1
+			){
+
+				apresentation_points(
+					std::atoi(argv[2]),
+					std::atoi(argv[3]),
+					std::atoi(argv[4])
+				);
+			}
+			else{
+
+				execute_simulation(
+					std::atoi(argv[2]),
+					std::atoi(argv[3]),
+					std::atoi(argv[4])
+				);
+			}
+
+			break;
+		}
+
+		case 6: {
+
+			if(
+				std::atoi(argv[1]) == 1
+			){
+
+				apresentation_points(
+					std::atoi(argv[2]),
+					std::atoi(argv[3]),
+					std::atoi(argv[4]),
+					std::atoi(argv[5])
+				);
+			}
+			else{
+
+				execute_simulation(
+					std::atoi(argv[2]),
+					std::atoi(argv[3]),
+					std::atoi(argv[4]),
+					std::atoi(argv[5])
+				);
+			}
+
+			break;
+		}
+
+		case 7: {
+
+			if(
+				std::atoi(argv[1]) == 1
+			){
+
+				apresentation_points(
+					std::atoi(argv[2]),
+					std::atoi(argv[3]),
+					std::atoi(argv[4]),
+					std::atoi(argv[5]),
+					std::atoi(argv[6])
+				);
+			}
+			else{
+
+				execute_simulation(
+					std::atoi(argv[2]),
+					std::atoi(argv[3]),
+					std::atoi(argv[4]),
+					std::atoi(argv[5]),
+					std::atoi(argv[6])
+				);
+			}
+
 			break;
 		}
 
