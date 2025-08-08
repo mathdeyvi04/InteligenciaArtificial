@@ -24,6 +24,9 @@ apresentation_points(
 	        Indicates whether the execution is in simulation mode.
 	    algoritmo_escolhido (int):
 	        Identifier of the algorithm to be used in the simulation.
+	        0 -> Assexual
+	        1 -> Sexual
+	        2 -> Sexual Aleatório
 	    quant_de_pontos (int):
 	        Total number of points that will be processed and displayed.
 	    is_debug (bool, optional):
@@ -47,7 +50,7 @@ apresentation_points(
 		if( janela.get_keys() ){
 			// Então houve um clique.
 
-			float dist_sq_media = mae.get_sex(SDL_GetMouseState);
+			mae.get_sex(SDL_GetMouseState);
 		}
 
 		// Vamos renderizar.
@@ -74,6 +77,29 @@ execute_simulation(
 	bool is_debug = False,
 	int mutation_ratio = 20
 ){
+	/*
+    Description:
+    	Executes a simulation based on the selected algorithm and returns the results of
+    	distance squared mean of each generation.
+		
+    Parameters:
+      algoritmo_escolhido (int)
+          Identifier of the algorithm to be used in the simulation.
+      dimensao (int)
+          Number of dimensions for each point in the simulation.
+      quant_de_pontos (int)
+          Total number of points processed in each generation.
+      quant_de_geracoes (int)
+          Total number of generations to be simulated.
+      is_debug (bool, optional)
+          Enables debug mode to display additional information (default: false).
+      mutation_ratio (int, optional)
+          Mutation ratio applied during processing (default: 20).
+    
+    Return:
+      std::vector<float>
+          A vector containing the results for each generation of the simulation.
+	*/
 
 	std::vector<float> result(quant_de_geracoes);
 
@@ -113,9 +139,26 @@ execute_simulation(
 #include <pybind11/stl.h>
 using namespace pybind11::literals;
 
-PYBIND11_MODULE(meumodulo, m) {
+PYBIND11_MODULE(genectic_lab, m) {
 	m.doc() = R"pbdoc(
+	Description:
+		Evolutionary Simulation and Visualization Module
 
+        This module provides functions to run evolutionary simulations
+        and to visualize results interactively in a 2D graphical interface.
+
+    Features:
+        - Run simulations with selectable algorithms.
+        - Display results in a fixed-size 800x800 window.
+        - Interactive mouse controls to generate new populations or run continuous generations.
+        - Supports debug mode and customizable mutation ratios.
+
+    Functions:
+        - apresentation_points(...)
+            Launches the graphical interface for point-based visualization.
+
+        - execute_simulation(...)
+            Runs the simulation and returns results for each generation.
 	)pbdoc";
 
     m.def(
@@ -134,34 +177,66 @@ PYBIND11_MODULE(meumodulo, m) {
 		Parameters:
 		    is_simulation (int):
 		        Indicates whether the execution is in simulation mode.
-		    algoritmo_escolhido (int):
+
+		    algoritm_selected (int):
 		        Identifier of the algorithm to be used in the simulation.
-		    quant_de_pontos (int):
+		        0 - Assexual
+		        1 - Sexual 
+		        2 - Sexual Random
+
+		    number_points (int):
 		        Total number of points that will be processed and displayed.
+
 		    is_debug (bool, optional):
 		        Enables debug mode to display additional information (default: False).
+
 		    mutation_ratio (int, optional):
 		        Mutation ratio applied during processing (default: 20).
     	)pbdoc",
     	"is_simulation"_a, 
     	"algoritm_selected"_a,
     	"number_points"_a,
-    	"is_debug"_a,
-    	"mutation_ratio"_a
+    	"is_debug"_a = False,
+    	"mutation_ratio"_a = 20
     );
 
     m.def(
     	"execute_simulation", 
     	&execute_simulation, 
     	R"pbdoc(
+	    Description:
+	    	Executes a simulation based on the selected algorithm and returns the results of
+	    	distance squared mean of each generation.
+			
+	    Parameters:
+	      algoritmo_escolhido (int)
+	          Identifier of the algorithm to be used in the simulation.
 
+	      dimension (int)
+	          Number of dimensions for each point in the simulation.
+
+	      number_points (int)
+	          Total number of points processed in each generation.
+
+	      number_gerations (int)
+	          Total number of generations to be simulated.
+
+	      is_debug (bool, optional)
+	          Enables debug mode to display additional information (default: false).
+
+	      mutation_ratio (int, optional)
+	          Mutation ratio applied during processing (default: 20).
+	    
+	    Return:
+	      std::vector<float>
+	          A vector containing the results for each generation of the simulation.
     	)pbdoc",
     	"algoritm_selected"_a,
     	"dimension"_a,
     	"number_points"_a,
     	"number_gerations"_a,
-    	"is_debug"_a,
-    	"mutation_ratio"_a
+    	"is_debug"_a = False,
+    	"mutation_ratio"_a = 20
     );
 }
 
@@ -235,6 +310,17 @@ int main(int argc, char* argv[]){
 				);
 				break;
 			}
+
+			case 2: {
+
+				apresentation_points(
+					0,
+					0,
+					20
+				);
+				break;
+			}
+
 
 			default: {
 				fprintf(stderr, "\nInicializou com a quantidade errada de argumentos.\n");

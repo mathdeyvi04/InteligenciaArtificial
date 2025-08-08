@@ -294,7 +294,6 @@ public:
 			indice_especial[0] != -1
 		){
 
-			int menor_dist_sq = INT_MAX;
 			for(
 				int i = 0;
 					i < DIMENSION * QUANT_PONTOS;
@@ -325,9 +324,9 @@ public:
 	void
 	encerrar(){
 
-		if( points ) { delete points; }
-		if( ponto_de_convergencia ){ delete ponto_de_convergencia; }
-		if( child ){ delete child; }
+		if( points ) { delete[] points; }
+		if( ponto_de_convergencia ){ delete[] ponto_de_convergencia; }
+		if( child ){ delete[] child; }
 	}
 };
 
