@@ -3,7 +3,7 @@ all:
 	-I/usr/include/SDL2 -D_REENTRANT \
 	main.cpp -o main \
 	-lSDL2; \
-	./main; rm -f main;	
+	./main 1; rm -f main;	
 
 create:
 	g++ \
