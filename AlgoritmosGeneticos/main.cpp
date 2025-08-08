@@ -10,9 +10,26 @@ apresentation_points(
 	int mutation_ratio = 20
 ){
 	/*
-	Descrição:
-		Caso desejado pelo usuário, providenciará 
-		a apresentação da aplicação para o caso 2D.
+	Description:
+	    Executes the visual presentation of the application in the 2D case, allowing mouse interaction and
+	    rendering of the best individuals, depending on the algorithm, in colors.
+
+	    - Clicking generates a new generation;
+	    - Clicking and holding ensures continuous creation of generations;
+
+	    The window has a fixed size of 800x800.
+
+	Parameters:
+	    is_simulation (int):
+	        Indicates whether the execution is in simulation mode.
+	    algoritmo_escolhido (int):
+	        Identifier of the algorithm to be used in the simulation.
+	    quant_de_pontos (int):
+	        Total number of points that will be processed and displayed.
+	    is_debug (bool, optional):
+	        Enables debug mode to display additional information (default: False).
+	    mutation_ratio (int, optional):
+	        Mutation ratio applied during processing (default: 20).
 	*/
 	Janela janela;
 
@@ -48,37 +65,105 @@ apresentation_points(
 	janela.encerrar();
 }
 
-void
+std::vector<float>
 execute_simulation(
 	int algoritmo_escolhido,
 	int dimensao,
 	int quant_de_pontos,
+	int quant_de_geracoes,
 	bool is_debug = False,
 	int mutation_ratio = 20
 ){
 
-}
+	std::vector<float> result(quant_de_geracoes);
 
-// Função Anônima: [](int* a, int* b) -> unsigned int { return 1; }
+	Mother mae(
+		1,
+		algoritmo_escolhido,
+		dimensao,
+		quant_de_pontos,
+		is_debug,
+		mutation_ratio
+	);
+
+	int n_gen = 0;
+	while(
+		n_gen != quant_de_geracoes
+	){	
+
+		result.push_back(
+			mae.get_sex(
+				[](int* a, int* b) -> unsigned int { return 1; }
+			)
+		);
+
+		n_gen++;
+	}
+
+	mae.encerrar();
+
+	return result;
+}
 
 #ifdef BUILD_AS_PYTHON_MODULE
 
 // ---------------------------------------
 // Execução para Python
-// #include <pybind11/pybind11.h>
-// #include <pybind11/stl.h>
-// using namespace pybind11::literals;
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+using namespace pybind11::literals;
 
-// int soma(int x, int y) {
-//     return x + y;
-// }
+PYBIND11_MODULE(meumodulo, m) {
+	m.doc() = R"pbdoc(
 
-// PYBIND11_MODULE(meumodulo, m) {
-//     m.def("soma", &soma, "Soma dois números", "x"_a, "y"_a);
-// }
+	)pbdoc";
 
+    m.def(
+    	"apresentation_points", 
+    	&apresentation_points, 
+    	R"pbdoc(
+    	Description:
+		    Executes the visual presentation of the application in the 2D case, allowing mouse interaction and
+		    rendering of the best individuals, depending on the algorithm, in colors.
 
+		    - Clicking generates a new generation;
+		    - Clicking and holding ensures continuous creation of generations;
 
+		    The window has a fixed size of 800x800.
+
+		Parameters:
+		    is_simulation (int):
+		        Indicates whether the execution is in simulation mode.
+		    algoritmo_escolhido (int):
+		        Identifier of the algorithm to be used in the simulation.
+		    quant_de_pontos (int):
+		        Total number of points that will be processed and displayed.
+		    is_debug (bool, optional):
+		        Enables debug mode to display additional information (default: False).
+		    mutation_ratio (int, optional):
+		        Mutation ratio applied during processing (default: 20).
+    	)pbdoc",
+    	"is_simulation"_a, 
+    	"algoritm_selected"_a,
+    	"number_points"_a,
+    	"is_debug"_a,
+    	"mutation_ratio"_a
+    );
+
+    m.def(
+    	"execute_simulation", 
+    	&execute_simulation, 
+    	R"pbdoc(
+
+    	)pbdoc",
+    	"algoritm_selected"_a,
+    	"dimension"_a,
+    	"number_points"_a,
+    	"number_gerations"_a,
+    	"is_debug"_a,
+    	"mutation_ratio"_a
+    );
+}
 
 #else
 
@@ -104,76 +189,21 @@ int main(int argc, char* argv[]){
 			N_2 -> Algoritmo Selecionado
 			N_3 -> Quantidade de Pontos
 
-		./main 0 N_1 N_2 N_3 N_4? N_5?
+		./main 0 N_1 N_2 N_3 N_4 N_5? N_6?
 
 			N_1 -> Algoritmo Selecionado
 			N_2 -> Dimensão
 			N_3 -> Quantidade de Pontos
+			N_4 -> Quantidade de Gerações
 	*/
 
-	switch(argc){
+	if(
+		// Verificando se é apresentação.
+		std::atoi(argv[1])
+	){
 
-		case 1: {
-			// Caso nada seja inserido, vamos colocar o padrão.
-			apresentation_points(0, 1, 20);
-			break;
-		}
-
-		case 5: {
-
-			if(
-				std::atoi(argv[1]) == 1
-			){
-
-				apresentation_points(
-					std::atoi(argv[2]),
-					std::atoi(argv[3]),
-					std::atoi(argv[4])
-				);
-			}
-			else{
-
-				execute_simulation(
-					std::atoi(argv[2]),
-					std::atoi(argv[3]),
-					std::atoi(argv[4])
-				);
-			}
-
-			break;
-		}
-
-		case 6: {
-
-			if(
-				std::atoi(argv[1]) == 1
-			){
-
-				apresentation_points(
-					std::atoi(argv[2]),
-					std::atoi(argv[3]),
-					std::atoi(argv[4]),
-					std::atoi(argv[5])
-				);
-			}
-			else{
-
-				execute_simulation(
-					std::atoi(argv[2]),
-					std::atoi(argv[3]),
-					std::atoi(argv[4]),
-					std::atoi(argv[5])
-				);
-			}
-
-			break;
-		}
-
-		case 7: {
-
-			if(
-				std::atoi(argv[1]) == 1
-			){
+		switch(argc){
+			case 7: {
 
 				apresentation_points(
 					std::atoi(argv[2]),
@@ -182,8 +212,52 @@ int main(int argc, char* argv[]){
 					std::atoi(argv[5]),
 					std::atoi(argv[6])
 				);
+				break;
 			}
-			else{
+
+			case 6: {
+
+				apresentation_points(
+					std::atoi(argv[2]),
+					std::atoi(argv[3]),
+					std::atoi(argv[4]),
+					std::atoi(argv[5])
+				);
+				break;
+			}
+
+			case 5: {
+
+				apresentation_points(
+					std::atoi(argv[2]),
+					std::atoi(argv[3]),
+					std::atoi(argv[4])
+				);
+				break;
+			}
+
+			default: {
+				fprintf(stderr, "\nInicializou com a quantidade errada de argumentos.\n");
+			}
+		}
+	}
+	else{
+
+		switch(argc){
+			case 8: {
+
+				execute_simulation(
+					std::atoi(argv[2]),
+					std::atoi(argv[3]),
+					std::atoi(argv[4]),
+					std::atoi(argv[5]),
+					std::atoi(argv[6]),
+					std::atoi(argv[7])
+				);
+				break;
+			}
+
+			case 7: {
 
 				execute_simulation(
 					std::atoi(argv[2]),
@@ -192,13 +266,24 @@ int main(int argc, char* argv[]){
 					std::atoi(argv[5]),
 					std::atoi(argv[6])
 				);
+				break;
 			}
 
-			break;
-		}
+			case 6: {
 
-		default:
-			break;
+				execute_simulation(
+					std::atoi(argv[2]),
+					std::atoi(argv[3]),
+					std::atoi(argv[4]),
+					std::atoi(argv[5])
+				);
+				break;
+			}
+
+			default: {
+				fprintf(stderr, "\nInicializou com a quantidade errada de argumentos.\n");
+			}
+		}
 	}
 
 	fprintf(stderr, "\n");
