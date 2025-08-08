@@ -243,6 +243,9 @@ public:
 				}
 
 				default: {
+					fprintf(stderr, "\nNão há algoritmo selecionado de forma correta.");
+					encerrar();
+					exit(-1);
 					break;
 				}
 			}
