@@ -1,6 +1,6 @@
-### [Dinossauro](Dinossauro)
+### [Chuva de Pedras](StoneRain)
 
-Construímos uma Rede Neural para solucionar o joguinho do Dinossauro.
+Construção de Rede Neural para vencer a chuva de pedras.
 
 ### [Pouso No Planeta](PousoNoPlaneta)
 
