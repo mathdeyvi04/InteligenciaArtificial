@@ -1,4 +1,5 @@
 #include "Graphicx.hpp"
+#include "Object.hpp"
 
 int main(){
 
@@ -6,6 +7,8 @@ int main(){
 		"Stone Rain",
 		800, 600
 	);
+
+	Object obst(20, 20, 20, 20);
 
 	while(
 		aplication.if_is_running()

@@ -5,6 +5,7 @@
 #define False false
 
 #include <SDL2/SDL.h>
+#include <stdlib.h>
 #include <iostream>
 
 /**
@@ -25,6 +26,7 @@ private:
 	int   _switch_phase_fps = 0; ///< Contador Auxiliar para Fases do Controle de FPS
 	int   _switch_phase_renderer = 0; ///< Contador Auxiliar para Fases do Renderizador
 	SDL_Event evento;
+
 public:
 
 	/**
@@ -41,6 +43,8 @@ public:
 	) : _width(width),
 		_height(height)
 	{	
+
+		srand(time(NULL));
 
 		if(
 			SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0
