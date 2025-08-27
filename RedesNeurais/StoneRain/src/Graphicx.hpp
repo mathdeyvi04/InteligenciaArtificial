@@ -31,6 +31,9 @@ public:
 
 	/**
 	 * @brief Construtor da Classe
+	 * @param nome_da_janela Nome da Janela
+	 * @param width Comprimento da Janela
+	 * @param height Largura da Janela
 	 * @details 
 	 * 
 	 * Cada inicialização é verificada. Havendo erro, os passos anteriores
@@ -119,19 +122,19 @@ public:
 	/**
 	 * @brief Getter do comprimento
 	 */
-	int
+	const int
 	get_width() const { return _width; }
 
 	/**
 	 * @brief Getter da largura	
 	 */
-	int
+	const int
 	get_height() const { return _height; }
 
 	/**
 	 * @brief Verificação de Funcionamento
 	 */
-	bool
+	const bool
 	if_is_running() const { return _is_running; }
 
 	/**
@@ -206,8 +209,11 @@ public:
 	}
 
 
-
-
+	/**
+	 * @brief Obtém o intervalo de tempo para realizar cálculos.
+	 */
+	double 
+	get_delta_time() { return _frame_time / 1000.0; }
 
 };
 

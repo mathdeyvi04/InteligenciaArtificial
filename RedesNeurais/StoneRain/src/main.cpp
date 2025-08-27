@@ -8,7 +8,12 @@ int main(){
 		800, 600
 	);
 
-	Object obst(20, 20, 20, 20);
+	StoneRain<20> exe(
+					  0,
+					  aplication.get_width(),
+					  0,
+					  aplication.get_height()
+					 );
 
 	while(
 		aplication.if_is_running()
@@ -19,6 +24,10 @@ int main(){
 		aplication.set_renderer();
 
 		// Implementação da Lógica
+		SDL_SetRenderDrawColor(aplication.get_renderer(), 0, 0, 0, 255);
+
+		// Avanço do tempo
+		exe.move_and_print_rain(aplication.get_renderer(), aplication.get_delta_time());
 
 
 		aplication.set_renderer();
