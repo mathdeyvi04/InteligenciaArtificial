@@ -2,8 +2,8 @@
 #define OBJECT_HPP
 
 #include <SDL2/SDL.h>
-#include <array>
 #include <stdlib.h>
+#include <vector>
 	
 /**
  * @brief Representará os objetos de uma maneira geral e abstrata.
@@ -70,38 +70,6 @@ public:
 	}
 
 	/**
-	 * @brief Responsável por apresentar o objeto.	
-	 * @details
-	 * 
-	 * Executa individualmente o preenchimento do retângulo.
-	 * Não se responsabiliza pela definição de cor.
-	 */
-	void
-	print(
-		SDL_Renderer* renderer
-	){
-
-		SDL_RenderFillRect(
-			renderer,
-			&rect
-		);
-	}
-
-	/**
-	 * @brief Responsável por analisar colisões	entre objetos.
-	 * @param other_object Outro Objeto
-	 */
-	bool
-	check_colision(
-		const Object& other_object
-	){
-		return SDL_HasIntersection(
-									&this->rect,
-									&other_object.get_rect()
-			                      );
-	}
-
-	/**
 	 * @brief Setter do eixo x e do eixo y.
 	 * @param valor Valor a ser setado.
 	 * @param i Indice indicador se setará x ou y.	
@@ -131,6 +99,23 @@ public:
 		vel[i] = valor;
 	}
 
+	/**
+	 * @brief Responsável por apresentar o objeto.	
+	 * @details
+	 * 
+	 * Executa individualmente o preenchimento do retângulo.
+	 * Não se responsabiliza pela definição de cor.
+	 */
+	void
+	print(
+		SDL_Renderer* renderer
+	){
+
+		SDL_RenderFillRect(
+			renderer,
+			&rect
+		);
+	}
 
 	/**
 	 * @brief Responsável por prover a movimentação do objeto.	
@@ -155,16 +140,14 @@ public:
 	
 /**
  * @brief Representará os obstáculos de chuva.
- * @tparam quant_de_obst Quantidade de Obstáculos
  * @details
  * 
  * Responsável por agrupar funcionalidades inerentes à chuva.
  */
-template <int quant_de_obst>
 class StoneRain {
 private:
 
-	std::array<Object, quant_de_obst> obsts;
+	std::vector<Object> obsts;
 	int _height;
 	int _width;
 
@@ -172,23 +155,28 @@ public:
 
 	/**
 	 * @brief Construtor da Classe 
+	 * @param quantidade Quantidade de Pedras
 	 * @param lim_inf_x Limite inferior X dos objetos
 	 * @param lim_sup_x Limite Superior X dos objetos
 	 * @param lim_inf_y Limite Inferior Y dos objetos
 	 * @param lim_sup_y Limite Superior Y dos objetos
 	 */
 	StoneRain(
+		int quantidade,
 		int lim_inf_x, 
 		int lim_sup_x,
 		int lim_inf_y,
 		int lim_sup_y
-	){
-
+	)
+	{
+		obsts.reserve(quantidade);
 		for(
 			int i = 0;
-				i < quant_de_obst;
+				i < quantidade;
 				i++
 		){
+
+			obsts.emplace_back(); // vai chamar default
 
 			obsts[i].set_kinematic(
 								   Object::get_random(lim_inf_x, lim_sup_x),
@@ -217,7 +205,7 @@ public:
 
 		for(
 			int i = 0;
-				i < quant_de_obst;
+				i < 10;
 				i++
 		){
 
@@ -257,16 +245,23 @@ public:
 		}
 	}
 
-};
+	/**
+	 * @brief Getter de comprimento	
+	 */
+	const int
+	get_width() const { return _width; }
 
-/**
- * @brief Representará nosso jogador, nossa rede neural.
- */
-class Player : public Object {
-private:
+	/**
+	 * @brief Getter de largura
+	 */
+	const int
+	get_height() const { return _height; }
 
-public:
-	
+	/**
+	 * @brief Getter dos obstáculos	
+	 */
+	const std::vector<Object>&
+	get_obsts(){ return obsts; }
 };
 
 #endif // OBJECT_HPP

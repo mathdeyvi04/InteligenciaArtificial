@@ -288,13 +288,14 @@ public:
 
 	/**
 	 * @brief Controlador de Inputs
+	 * @param[out] flag Flag para direcionais
 	 * @details
 	 * 
 	 * Usamos um `while(SDL_PollEvent(...))` para garantir que todos 
 	 * as entradas sejam tratadas antes do próximo frame.
 	 */
 	void
-	get_keys(){
+	get_keys(int* flag){
 
 		while(
 			SDL_PollEvent(&evento)
@@ -337,6 +338,16 @@ public:
 							break;
 						}
 
+						case SDLK_a: {
+
+							*flag -= 1;
+							break;
+						}
+
+						case SDLK_d: {
+							*flag += 1;
+							break;
+						}
 						default:
 							break;
 					}
