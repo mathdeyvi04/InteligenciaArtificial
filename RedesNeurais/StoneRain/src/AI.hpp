@@ -1,6 +1,10 @@
 #ifndef AI_HPP
 #define AI_HPP
 
+/**
+ * @brief Com esta biblioteca, não precisaremos reinventar a roda.
+ */
+#include <Eigen/Dense>
 #include "Player.hpp"
 
 struct Bot {
@@ -16,6 +20,38 @@ private:
 
 	std::vector<bool> running_flags;
 	std::vector<std::thread> workers;
+	std::vector<Bot> players;
+
+	/**
+	 * @brief As threads jogarão utilizando essa função.
+	 */
+	void
+	run(int id = -1) override {
+
+		// Não ocupará nova memória, lembra?
+		const std::vector<Object>& obsts = rain->get_obsts();
+
+		// Vamos colocá-lo no meio.
+		players[id].pos[0] = rain->get_width() / 2.0;
+		players[id].pos[1] = rain->get_height() - 15;
+
+		while(
+			running_flags[id]
+		){
+
+
+
+
+
+
+
+
+			SDL_Delay(50);
+		}
+
+		var--;
+		fprintf(stderr, "\nSai da thread %d", id);
+	}
 
 public:
 	AI() = default;
@@ -40,19 +76,6 @@ public:
 	}
 
 	/**
-	 * @brief As threads jogarão utilizando essa função.
-	 */
-	void
-	run(int id = -1) override {
-
-		// Não ocupará nova memória, lembra?
-		const std::vector<Object>& obsts = rain->get_obsts();
-
-		Bot player;
-		fprintf(stderr, "\nSai da thread %d", id);
-	}
-
-	/**
 	 * @brief Contará quantas threads ainda estão vivas.	
 	 */
 	bool
@@ -66,28 +89,46 @@ public:
 
 		workers.reserve(max_threads);
 		running_flags.reserve(max_threads);
+		players.reserve(max_threads);
 		for(
 			int i = 0;
 				i < max_threads;
 				i++
 		){
+
 			running_flags.emplace_back(True);
+			players.emplace_back();
 			workers.emplace_back(
 				[this, i](){ run(i); }
 			);
-			
+			var++;
 		}
-
 	}
 
 	/**
-	 * @brief Sem utilidade.
-	 * @details
-	 * 
-	 * Mais responsabilidades serão jogadas para a thread.
+	 * @brief Apresentará todos.
 	 */
 	void
-	move_and_print( SDL_Renderer* renderer, double interv ) override {}
+	move_and_print( SDL_Renderer* renderer, double interv ) override {
+		for(
+			auto& p : players
+		){
+
+			p.rect.x = p.pos[0];
+			p.rect.y = p.pos[1];
+
+			SDL_SetRenderDrawColor(renderer, 
+											Object::get_random(0, 255),
+											Object::get_random(0, 255),
+											Object::get_random(0, 255),
+											255);
+
+			SDL_RenderFillRect(
+				renderer,
+				&p.rect
+			);
+		}
+	}
 };
 
 #endif // AI_HPP
