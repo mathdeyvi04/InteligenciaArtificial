@@ -33,6 +33,9 @@ public:
 	virtual bool
 	is_alive() = 0;
 
+	virtual void
+	init() = 0;
+
 	/**	
 	 * @brief Armazenaremos as informações dos obstáculos de uma vez.	
 	 */
@@ -81,8 +84,8 @@ private:
 	 * Também responsável por verificar colisões encerrar a simulação.
 	 */
 	void run() override {
+
 		// Garantimos que haverá informações de obstáculos disponíveis.
-		while(!rain){ SDL_Delay(50); }
 		const std::vector<Object>& obsts = rain->get_obsts();
 
 		// Vamos colocá-lo no meio.
@@ -94,7 +97,6 @@ private:
 		while(is_running.load()){
 
 			// Atualizamos entradas
-			fprintf(stderr, "\nEstou lendo %d", flag_user_play);
 			if(
 				flag_user_play > 0
 			){
@@ -129,15 +131,14 @@ private:
 						)
 					){
 
-						// fprintf(stderr, "\nExplodiu.");
+						is_running.exchange(False);
+						return;
 					}
 				}
 			}
 
-			SDL_Delay(100); // Evitar superuso
+			SDL_Delay(50); // Evitar superuso
 		}
-
-		fprintf(stderr, "\nSaindo da thread.");
 	}
 
 public:
@@ -145,8 +146,8 @@ public:
 	/**
 	 * @brief Iniciamos a thread de entradas.	
 	 */
-	HumanPlayer(){
-
+	void
+	init(){
 		worker = std::thread([this]() { run(); });
 	}
 
@@ -154,15 +155,14 @@ public:
 	 * @brief Desliga a thread de pensamento.	
 	 */
 	~HumanPlayer(){
+		is_running.exchange(False);
+		
+
 		if(
-			is_running.exchange(False)
+			worker.joinable()
 		){
-			if(
-				worker.joinable()
-			){
-				worker.join();
-				fprintf(stderr, "\nDesliguei.");
-			}
+			worker.join();
+			fprintf(stderr, "\nDesliguei.");
 		}
 	}
 

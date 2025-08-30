@@ -21,6 +21,7 @@ simulate_rain(
 				 );
 
 	player->set_obsts(&rain);
+	player->init();
 
 	while(
 		aplication.if_is_running() and player->is_alive()

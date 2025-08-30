@@ -169,6 +169,7 @@ public:
 		int lim_sup_y
 	)
 	{
+		if(quantidade <= 0){ quantidade = 10; }
 		obsts.reserve(quantidade);
 		for(
 			int i = 0;
@@ -176,7 +177,7 @@ public:
 				i++
 		){
 
-			obsts.emplace_back(); // vai chamar default
+			obsts.push_back(Object()); // vai chamar default
 
 			obsts[i].set_kinematic(
 								   Object::get_random(lim_inf_x, lim_sup_x),
