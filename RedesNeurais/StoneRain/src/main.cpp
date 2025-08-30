@@ -8,7 +8,7 @@ int main(){
 		800, 600
 	);
 
-	StoneRain<20> exe(
+	StoneRain<10> exe(
 					  0,
 					  aplication.get_width(),
 					  0,
@@ -30,6 +30,8 @@ int main(){
 		exe.move_and_print_rain(aplication.get_renderer(), aplication.get_delta_time());
 
 
+		aplication.print_fps();
+		aplication.print_boost();
 		aplication.set_renderer();
 		aplication.controll_fps();
 	}

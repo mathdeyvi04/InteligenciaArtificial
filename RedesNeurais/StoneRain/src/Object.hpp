@@ -16,7 +16,6 @@ protected:
 	double pos[2]  = {0, 0};
 	double vel[2]  = {0, 0};
 	double acel[2] = {0, 0};
-
 public:
 
 	/**
@@ -103,6 +102,37 @@ public:
 	}
 
 	/**
+	 * @brief Setter do eixo x e do eixo y.
+	 * @param valor Valor a ser setado.
+	 * @param i Indice indicador se setará x ou y.	
+	 */
+	void 
+	set_pos(
+		int valor,
+		int i
+	){
+		if( i > 2){ return; }
+
+		pos[i] = valor;
+	}
+
+	/**
+	 * @brief Setter de Velocidade do eixo x e y.	
+	 * @param valor Valor a ser setado.
+	 * @param i Indice indicador se setará x ou y.	
+	 */
+	void 
+	set_vel(
+		int valor, 
+		int i
+	){
+
+		if(i > 2){ return; }
+		vel[i] = valor;
+	}
+
+
+	/**
 	 * @brief Responsável por prover a movimentação do objeto.	
 	 * @param interv Intervalo de Tempo
 	 */
@@ -118,11 +148,9 @@ public:
 		pos[0] += vel[0] * interv;
 		pos[1] += vel[1] * interv;
 
-		rect.x = pos[0];
+		rect.x = pos[0]; // Sempre estarão atualizados.
 		rect.y = pos[1];
 	}
-
-
 };
 	
 /**
@@ -137,6 +165,8 @@ class StoneRain {
 private:
 
 	std::array<Object, quant_de_obst> obsts;
+	int _height;
+	int _width;
 
 public:
 
@@ -164,17 +194,19 @@ public:
 								   Object::get_random(lim_inf_x, lim_sup_x),
 								   Object::get_random(lim_inf_y, lim_sup_y),
 								   0,
-								   10,  // Velocidade padrão da chuva
+								   1000,  // Velocidade padrão da chuva
 								   0, 
-								   0
+								   100
 				                  );
+
+			_height = lim_sup_y;
+			_width  = lim_sup_x;
 		}
 	}
 
-
-
 	/**
 	 * @brief Responsável por apresentar todos os elementos de chuva.	
+	 * @param renderer Renderizador da Janela
 	 * @param interv Intervalo de Tempo
 	 */
 	void
@@ -190,11 +222,40 @@ public:
 		){
 
 			obsts[i].move(interv);
+
+			this->recycling(obsts[i]);
+
+
 			obsts[i].print(renderer);
 		}
-
 	}
 
+	/**
+	 * @brief Responsável por criar o algoritmo de reciclagem dos obstáculos
+	 * @details
+	 * 
+	 * A cada momento que um elemento saí da tela, ele deve ser redirecionado para o topo.	
+	 */
+	void
+	recycling(
+		Object& elemento
+	){
+
+		if(
+			elemento.get_rect().y > _height 
+		){
+
+			elemento.set_pos(0, 1);
+			elemento.set_pos(
+						    Object::get_random(0, _width - 15),
+						    0
+							);
+			elemento.set_vel(
+							Object::get_random(800, 1500),
+							1
+							);
+		}
+	}
 
 };
 
@@ -202,7 +263,10 @@ public:
  * @brief Representará nosso jogador, nossa rede neural.
  */
 class Player : public Object {
+private:
 
+public:
+	
 };
 
 #endif // OBJECT_HPP

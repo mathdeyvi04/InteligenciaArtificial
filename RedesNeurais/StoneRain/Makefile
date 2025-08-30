@@ -8,7 +8,7 @@ CXXFLAGS = -Wall -std=c++17
 
 # Flags de ligação com SDL2
 SDL_CFLAGS = -I/usr/include/SDL2 -D_REENTRANT
-SDL_LDFLAGS = -lSDL2
+SDL_LDFLAGS = -lSDL2 -lSDL2_ttf
 
 # Regra padrão
 all:
