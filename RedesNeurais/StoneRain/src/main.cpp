@@ -1,6 +1,7 @@
 #include "Graphicx.hpp"
 #include "Object.hpp"
 #include "Player.hpp"
+#include "AI.hpp"
 
 void
 simulate_rain(
@@ -13,7 +14,7 @@ simulate_rain(
 	);
 
 	StoneRain rain(
-				  10,
+				  20,
 				  0,
 				  aplication.get_width(),
 				  0,
@@ -34,7 +35,6 @@ simulate_rain(
 		SDL_SetRenderDrawColor(aplication.get_renderer(), 0, 0, 0, 255);
 
 		// Avanço do tempo
-		SDL_SetRenderDrawColor(aplication.get_renderer(), 0, 0, 255, 255);
 		player->move_and_print(aplication.get_renderer(), aplication.get_delta_time());
 		SDL_SetRenderDrawColor(aplication.get_renderer(), 0, 0, 0, 255);
 		rain.move_and_print_rain(aplication.get_renderer(), aplication.get_delta_time());
@@ -53,7 +53,7 @@ int main(
 	if(argc == 1){
 		// Desejamos fazer o usuário jogar.
 
-		Player* p = new HumanPlayer();
+		Player* p = new AI();
 
 		simulate_rain(p);
 

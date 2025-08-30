@@ -176,7 +176,6 @@ public:
 				i < quantidade;
 				i++
 		){
-
 			obsts.push_back(Object()); // vai chamar default
 
 			obsts[i].set_kinematic(
@@ -206,7 +205,7 @@ public:
 
 		for(
 			int i = 0;
-				i < 10;
+				i < (int)obsts.size();
 				i++
 		){
 

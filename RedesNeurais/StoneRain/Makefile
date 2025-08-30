@@ -3,7 +3,7 @@ TARGET = main
 SRC = src/main.cpp
 
 # Compilador e Flags
-CXX = g++
+CXX = g++ -O1
 CXXFLAGS = -Wall -std=c++17
 
 # Flags de ligação com SDL2

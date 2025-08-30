@@ -25,7 +25,7 @@ public:
 	~Player() = default;
 
 	virtual void
-	run() = 0;
+	run(int id = 0) = 0;
 
 	virtual void
 	move_and_print( SDL_Renderer* renderer, double interv ) = 0;
@@ -83,7 +83,7 @@ private:
 	 * 
 	 * Também responsável por verificar colisões encerrar a simulação.
 	 */
-	void run() override {
+	void run(int id = 0) override {
 
 		// Garantimos que haverá informações de obstáculos disponíveis.
 		const std::vector<Object>& obsts = rain->get_obsts();
@@ -147,7 +147,7 @@ public:
 	 * @brief Iniciamos a thread de entradas.	
 	 */
 	void
-	init(){
+	init() override {
 		worker = std::thread([this]() { run(); });
 	}
 
@@ -179,6 +179,7 @@ public:
 
 		rect.x = pos[0];
 		rect.y = pos[1];
+		SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 
 		SDL_RenderFillRect(
 			renderer,
@@ -190,7 +191,7 @@ public:
 	 * @brief Verificará se há um jogador vivo.	
 	 */
 	bool
-	is_alive(){
+	is_alive() override {
 
 		return is_running.load();
 	}
