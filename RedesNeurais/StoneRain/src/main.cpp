@@ -1,7 +1,7 @@
 #include "Graphicx.hpp"
 #include "Object.hpp"
-#include "Player.hpp"
-#include "AI.hpp"
+#include "AIPlayer.hpp"
+#include "HumanPlayer.hpp"
 
 void
 simulate_rain(
@@ -53,7 +53,7 @@ int main(
 	if(argc == 1){
 		// Desejamos fazer o usuário jogar.
 
-		Player* p = new AI();
+		Player* p = new AIPlayer();
 
 		simulate_rain(p);
 

@@ -1,26 +1,34 @@
 #ifndef AI_HPP
 #define AI_HPP
 
-/**
- * @brief Com esta biblioteca, não precisaremos reinventar a roda.
- */
-#include <Eigen/Dense>
 #include "Player.hpp"
+#include "NeuralNetwork.hpp"
+#include <mutex>
+#include <iostream>
 
+/**
+ * @brief Struct para representar os objetos que serão jogados pelas threads.
+ */
 struct Bot {
 	double pos[2] = {0, 0};
 	SDL_Rect rect{0, 0, 15, 15};
+	int r = Object::get_random(0, 255);
+	int g = Object::get_random(0, 255);
+	int b = Object::get_random(0, 255);
 };
 
-class AI : public Player {
+
+class AIPlayer : public Player {
 private: 
 
-	const int max_threads = 2;
+	const int max_threads = 1;
 	std::atomic<int> var{0};
 
 	std::vector<bool> running_flags;
 	std::vector<std::thread> workers;
 	std::vector<Bot> players;
+	std::mutex mtx; ///< Mutex para garantir unicidade no acesso às cores renderizadas
+
 
 	/**
 	 * @brief As threads jogarão utilizando essa função.
@@ -35,10 +43,14 @@ private:
 		players[id].pos[0] = rain->get_width() / 2.0;
 		players[id].pos[1] = rain->get_height() - 15;
 
+		// Vamos definir aqui o que fazer com a "mente do jogador".
+		NeuralNetwork nn;
+
 		while(
 			running_flags[id]
 		){
 
+			
 
 
 
@@ -54,12 +66,12 @@ private:
 	}
 
 public:
-	AI() = default;
+	AIPlayer() = default;
 
 	/**
 	 * @brief Responsável por desligar cada uma das threads ligadas.	
 	 */
-	~AI(){
+	~AIPlayer(){
 
 		// Forçar desligamento de todas
 		for(
@@ -106,7 +118,10 @@ public:
 	}
 
 	/**
-	 * @brief Apresentará todos.
+	 * @brief Apresentará todos os objetos.
+	 * @details
+	 * 
+	 * Há um mutex protegendo o acesso às cores do SDL.
 	 */
 	void
 	move_and_print( SDL_Renderer* renderer, double interv ) override {
@@ -117,16 +132,18 @@ public:
 			p.rect.x = p.pos[0];
 			p.rect.y = p.pos[1];
 
+			// O ponto é que este valor aqui necessita de um mutex.
+			mtx.lock();
 			SDL_SetRenderDrawColor(renderer, 
-											Object::get_random(0, 255),
-											Object::get_random(0, 255),
-											Object::get_random(0, 255),
+											p.r,
+											p.g,
+											p.b,
 											255);
-
 			SDL_RenderFillRect(
 				renderer,
 				&p.rect
 			);
+			mtx.unlock();
 		}
 	}
 };
