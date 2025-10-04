@@ -20,7 +20,7 @@ Escrevi-o com a ajuda do canal _3Blue1Brown_ e com o ChatGPT, este para os menos
 
 ### [Redes Neurais](RedesNeurais)
 
-### [Estudando Algoritmos Genéticos](AlgoritmosGeneticos)
+### [Estudando Algoritmos Genéticos](https://github.com/mathdeyvi04/GeneticAlgorithm)
 
 ---
 
