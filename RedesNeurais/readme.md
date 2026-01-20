@@ -1,10 +1,6 @@
-### [Chuva de Pedras](https://github.com/mathdeyvi04/StoneRain)
+### [Construindo um Machine Learning Framework](MachineLearningC++)
 
-Construção de Rede Neural para vencer a chuva de pedras.
-
-### [Pouso No Planeta](PousoNoPlaneta)
-
-Para futuro: Usar stable-baseline3 para solucionar o pouso de uma nave em um solo instável.
+Seguindo um [tutorial](https://youtu.be/hL_n_GljC0I), desenvolvemos nosso próprio framework.
 
 ### Exemplo do contorno de países
 
